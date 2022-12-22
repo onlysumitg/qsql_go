@@ -1,0 +1,51 @@
+{{define "title"}}
+Saved Sqls
+{{end}}
+
+{{define "content"}}
+<br />
+<div class="row">
+  <div class="col-10">
+    <p class="h3">Saved SQLs</p>
+  </div>
+
+  <div class="col-2"><a href="/savesql/add">+Add</a></div>
+</div>
+
+
+<table class="table table-bordered table-striped">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Catagory</th>
+      <th>SQL</th>
+      <th>Options</th>
+    </tr>
+  </thead>
+  <tbody>
+    {{if .SavesQueries}}
+    {{range .SavesQueries}}
+    <tr>
+      <td><a href=' '>{{.Name}}</a></td>
+      <td>{{.Catagory}}</td>
+      <td>{{.Sql}}</td>
+      <td>
+        <a href=' '>Select</a>
+
+        <button class="btn btn">Edit</button>
+        <a href='/savesql/delete/{{.ID}}'>Delete</a>
+
+      </td>
+
+    </tr>
+    {{end}}
+
+    {{else}}
+    <tr><td>No Data found.</td></tr>
+    {{end}}
+  </tbody>
+</table>
+
+
+
+{{end}}

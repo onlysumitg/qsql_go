@@ -1,0 +1,61 @@
+{{define "query_single_row"}}
+<div v-if="showSinglRow" class="modal left fade in" id="myModal2" tabindex="-1" style="display:block" role="dialog"
+aria-labelledby="myModalLabel2">
+
+<div class="modal-mask" @click="showSinglRow = false">
+  <div class="modal-wrapper" @click="donothing($event)">
+
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+
+        <div class="modal-header">
+          <div class="row" style="width:100%">
+            <div class="col-10">
+              <button class="btn btn-primary" type="button" @click="previous_row()">
+                < Previous</button> <strong># [[singleRowIndex+1]] </strong>
+                  <button class="btn btn-primary" type="button" @click="next_row()"> Next ></button>
+
+            </div>
+            <div class="col-2">
+              <button class="btn btn-danger" type="button" @click="showSinglRow = false">X</button>
+
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-body">
+
+          <table class="table table-hover table-bordered">
+
+            <tbody>
+              <tr  @contextmenu="showSingleColumn($event,col,singleRow[col.Name])"  v-for='(col, col_index)  in singleRowColumns'  >
+                <th nowrap>
+                  <p class="font-weight-bold">[[col.Name]]</p>
+                  <p class="text-sm-left">
+                    [[col.DatabaseType]] [
+                    <span v-if="col.HasPrecisionScale">
+                      [[col.Precision]],[[col.Scale]]
+                    </span>
+                    <span v-else>
+                      [[col.Length]]
+                    </span>]
+                  </p>
+                </th>
+
+                <td nowrap class="  ">
+                  [[singleRow[col.Name] ]]</td>
+              </tr>
+            </tbody>
+
+
+          </table>
+        </div>
+
+      </div><!-- modal-content -->
+    </div><!-- modal-dialog -->
+  </div>
+</div>
+
+</div><!-- modal -->
+
+{{end}}

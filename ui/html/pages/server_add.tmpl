@@ -1,0 +1,107 @@
+
+{{define "title"}}
+Add new Server
+{{end}}
+
+
+{{define "content"}}
+<br />
+      <h2>Add Server</h2>
+
+<form action="/servers/add" method="POST">
+    <div class="form-group">
+        <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+
+        <div class="form-group">
+            <label for="servername">Server Name</label>
+            <input id="servername" class="form-control {{with .Form.FieldErrors.name}} is-invalid {{end}}" type="text"
+                name="name" aria-describedby="servernamehelp" placeholder="Server name" value='{{.Form.Name}}'
+                required></input>
+
+
+            <!-- Use the `with` action to render the value of .Form.FieldErrors.title if it is not empty. -->
+
+            {{with .Form.FieldErrors.name}}
+            <div class='invalid-feedback'>{{.}}</div>
+            {{end}}
+
+
+ 
+        </div>
+
+        <div class="form-group">
+            <label for="serverip">Server IP</label>
+
+            <input id="serverip" value='{{.Form.IP}}'
+                class="form-control  {{with .Form.FieldErrors.ip}} is-invalid {{end}}" type="text" name="ip"
+                required></input>
+            {{with .Form.FieldErrors.ip}}
+            <div class='invalid-feedback'>{{.}}</div>
+            {{end}}
+        </div>
+
+
+        <div class="form-group">
+            <label for="serverport">Server Port</label>
+
+            <input id="serverport" value='{{.Form.Port}}'
+                class="form-control  {{with .Form.FieldErrors.port}} is-invalid {{end}}" type="text"
+                name="port" ></input>
+            {{with .Form.FieldErrors.port}}
+            <div class='invalid-feedback'>{{.}}</div>
+            {{end}}
+        </div>
+
+        <div class="form-group">
+            <input value='{{.Form.Ssl}}' type="checkbox" class="form-check-input" name="ssl" id="exampleCheck1">
+            <label class="form-check-label" for="exampleCheck1">SSL</label>
+        </div>
+
+        <div class="form-group">
+            <label for="serveruser">Work lib</label>
+
+            <input id="worklib" value='{{.Form.WorkLib}}' type="text"
+                class="form-control  {{with .Form.FieldErrors.worklib}} is-invalid {{end}}" name="worklib" required></input>
+            {{with .Form.FieldErrors.worklib}}
+            <div class='invalid-feedback'>{{.}}</div>
+            {{end}}
+        </div>
+
+
+        <div class="form-group">
+            <label for="serveruser">Server User</label>
+
+            <input id="serverip" value='{{.Form.UserName}}' type="text"
+                class="form-control  {{with .Form.FieldErrors.user_name}} is-invalid {{end}}" name="user_name" required></input>
+            {{with .Form.FieldErrors.user_name}}
+            <div class='invalid-feedback'>{{.}}</div>
+            {{end}}
+        </div>
+
+
+        <div class="form-group">
+            <label for="serverpassword">Server Password</label>
+
+            <input id="serverpassword" value='{{.Form.Password}}' type="text"
+                class="form-control  {{with .Form.FieldErrors.password}} is-invalid {{end}}" name="password" required></input>
+            {{with .Form.FieldErrors.password}}
+            <div class='invalid-feedback'>{{.}}</div>
+            {{end}}
+        </div>
+
+
+        <div class="form-group">
+            <label for="connectioncount">Open connection</label>
+
+            <input id="connectioncount" value='{{.Form.Connections}}' type="number" class="form-control" min="1"
+                max="100" name="connections"></input>
+        </div>
+
+
+    </div>
+    <br />
+    <button type="submit" class="btn btn-primary">Submit</button>
+
+
+</form>
+{{end}}

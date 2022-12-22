@@ -1,0 +1,52 @@
+{{define "title"}}
+Servers
+{{end}}
+
+{{define "content"}}
+<br />
+ <div class="row">
+ <div class="col-10"><p class="h3">Servers</p></div>
+
+ <div class="col-2"><a href="/servers/add">+Add</a></div>
+ </div>
+    {{if .Servers}}
+
+    <table class="table table-bordered table-striped">
+      <thead>
+        <tr>
+            <th>Name</th>
+            <th>IP</th>
+            <th>Work Lib</th>
+            <th>Port</th>
+            <th>SSL</th>
+            <th>User</th>
+            <th>Options </th>
+
+        </tr>
+          </thead>
+          <tbody>
+
+        {{range .Servers}}
+        <tr>
+            <td><a href='/servers/select/{{.ID}}?next={{$.Next}}'>{{.Name}}</a></td>
+            <td>{{.IP}}</td>
+            <td>{{.WorkLib}}</td>
+            <td>{{.Port}}</td>
+            <td>{{.Ssl}}</td>
+            <td>{{.UserName}}</td>
+            <td>
+                     <a href='/servers/select/{{.ID}}?next={{$.Next}}'>Select</a>
+
+                     <a href='/servers/update/{{.ID}}'  >Edit</a>
+                     <a href='/servers/delete/{{.ID}}'  >Delete</a>
+
+            </td>
+
+        </tr>
+        {{end}}
+          </tbody>
+        </table>
+    {{end}}
+
+
+{{end}}

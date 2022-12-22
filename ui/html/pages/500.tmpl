@@ -1,0 +1,13 @@
+{{define "title"}}
+500
+{{end}}
+
+{{define "content"}}
+<h1> Server error</h1>
+
+<div>
+            {{with .Error}}
+       {{.}} 
+        {{end}}
+</div>
+{{end}}

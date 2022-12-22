@@ -1,0 +1,50 @@
+{{define "title"}}
+Servers
+{{end}}
+
+{{define "content"}}
+<br />
+ <div class="row">
+ <div class="col-10"><p class="h3">Batch Jobs</p></div>
+
+ </div>
+ 
+ <table class="table table-bordered table-striped">
+   <thead>
+     <tr>
+      <th>Created at</th>
+ 
+       <th>Server</th>
+        <th>SQL</th>
+       <th>Status</th>
+       
+       <th>Options </th>
+       
+      </tr>
+    </thead>
+    <tbody>
+      
+      {{if .BatchQueries}}
+        {{range .BatchQueries}}
+        <tr>
+          <td>{{.CreatedAt}}</td>
+ 
+             <td>{{.Server.Name}}</td>
+             <td>{{.RunningSql.RunningNow}}</td>
+            <td>{{.Status}}</td>
+            
+            <td>
+              <a href='/batchquery/{{.RunningSql.ID}}'  >Results</a>
+
+                      <a href=''  >Delete</a>
+
+            </td>
+
+        </tr>
+        {{end}}
+          </tbody>
+        </table>
+    {{end}}
+
+
+{{end}}

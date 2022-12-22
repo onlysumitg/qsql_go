@@ -1,0 +1,50 @@
+{{define "query_single_col"}}
+<div v-if="showSinglColumn" class="modal right fade in" id="myModal3" tabindex="-1" style="display:block" role="dialog"
+aria-labelledby="myModalLabel2">
+
+<div class="modal-mask" @click="showSinglColumn = false">
+  <div class="modal-wrapper" @click="donothing($event)">
+
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+
+        <div class="modal-header">
+          <div class="row" style="width:100%">
+            <div class="col-10">
+                <strong class="font-weight-bold">[[ singleColumnData.Name ]]  || 
+                 
+                    [[singleColumnData.DatabaseType]] [
+                    <span v-if="singleColumnData.HasPrecisionScale">
+                      [[singleColumnData.Precision]],[[singleColumnData.Scale]]
+                    </span>
+                    <span v-else>
+                      [[singleColumnData.Length]]
+                    </span>]
+                  
+                </strong>
+            </div>
+            <div class="col-2">
+              <button class="btn btn-danger" type="button" @click="showSinglColumn = false" >X</button>
+
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-body">
+            <editor class="prettyprint" :lang="singleColumnMode" editor-id="editorR"   :content="contentR" :setreadonly="true" >
+        </editor>
+
+      
+      
+        </div>
+
+      </div><!-- modal-content -->
+    </div><!-- modal-dialog -->
+  </div>
+</div>
+
+</div><!-- modal -->
+
+ 
+    
+{{end}}

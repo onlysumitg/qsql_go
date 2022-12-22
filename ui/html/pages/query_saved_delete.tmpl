@@ -1,0 +1,42 @@
+{{define "title"}}
+Server detail
+{{end}}
+
+{{define "content"}}
+<h1> Delete Saved Query</h1>
+<table class="table table-bordered table-striped">
+    <tbody>
+        <tr>
+            <td>ID</td>
+            <td>{{.SavesQuery.ID}}</td>
+        </tr>
+        <tr>
+            <td>Catagory</td>
+            <td>{{.SavesQuery.Catagory}}</td>
+        </tr>
+        <tr>
+            <td>Name</td>
+            <td>{{.SavesQuery.Name}}</td>
+        </tr>
+
+
+
+        <tr>
+            <td>Query</td>
+            <td>{{.SavesQuery.Sql}}</td>
+        </tr>
+
+   
+    </tbody>
+</table>
+
+<hr />
+
+<form method="post" action="/savesql/delete">
+        <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+          <input type="hidden" name="queryid" value="{{.SavesQuery.ID}}">
+    <button type="submit" class="btn btn-danger">Confirm</button>
+
+</form>
+
+{{end}}

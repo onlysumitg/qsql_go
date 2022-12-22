@@ -1,0 +1,100 @@
+{{define "query_result"}}
+ 
+
+  <!-- processing-->
+
+  <div v-if="processing" class="progress" style="width:100%;height: 10px">
+    <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="100"
+      aria-valuemin="0" aria-valuemax="100" style="width: 100%;"></div>
+  </div>
+
+
+  <div class="row maxheight50" style="max-width:100%; padding-left: 25px;">
+    <!-- tab button-->
+
+    <ul class="nav nav-tabs">
+      <li v-for="(sqlresult,index) in sqlresults" class="nav-item" :class="{ active: (index==0) }"><a data-toggle="pill"
+          :href="[['#home'+index]]">[[sqlresult.Heading]]</a></li>
+
+    </ul>
+
+  </div>
+
+
+  <div :key="resulttable2key" id="resulttable2" style="max-width:100%; padding-left: 25px;" class="row maxheightRemaining">
+    <!-- tab content-->
+
+    <div class="tab-content">
+      <div v-for="(sqlresult,index) in sqlresults" :id="[['home'+index]]" class="tab-pane fade in"
+        :class="{ active: (index==0) }">
+
+        <!-- current sql-->
+
+        <div class="alert alert-success" role="alert">
+          [[sqlresult.CurrentSql.Sql]]
+        </div>
+
+        <!-- error message-->
+
+        <div v-if="(sqlresult.ErrorMessage).length !==0" class="alert alert-danger" role="alert">
+          [[sqlresult.ErrorMessage]]
+        </div>
+
+        <!-- result table-->
+
+        <div id="resulttable3" class="" v-else>
+          <table class="table table-hover table-bordered">
+            <thead class="thead-light">
+              <tr style="background-color: #d6e9c6;">
+                <th nowrap>#</th>
+                <th nowrap v-for='(column, col_index)  in sqlresult.Columns' class="my-sticky-top">
+                  [[column.Name]]
+
+                  <p>
+                    <sub v-if="column.HasPrecisionScale ||column.HasLength " >
+                      
+                      
+                      [[column.DatabaseType]] [
+                      <span v-if="column.HasPrecisionScale">
+                        [[column.Precision]],[[column.Scale]]
+                      </span>
+                      <span v-else>
+                        [[column.Length]]
+                      </span>]
+
+
+                    </sub>
+                  </p>
+                </th>
+              </tr>
+
+            </thead>
+            <tbody>
+              <tr @contextmenu="showSingleRow($event,sqlresult,row_index)" v-for='(row, row_index)  in sqlresult.Rows'>
+                <td nowrap>[[row_index + 1]]</td>
+                <td nowrap v-for='(column, col_index)  in sqlresult.Columns' class="  ">
+                  [[row[column.Name] ]]</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+
+        <button id="loadmore" class="btn btn-success" @click="loadMore(sqlresult)"
+          v-if="sqlresult.CurrentSql.LoadMore && !processing"> Load More </button>
+        <p v-if="!sqlresult.CurrentSql.LoadMore && !processing">End of data.</p>
+          <br>
+
+        <div v-if="processing" class="progress" style="width:100%;height: 10px">
+          <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="100"
+            aria-valuemin="0" aria-valuemax="100" style="width: 100%;"></div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+
+ 
+{{end}}

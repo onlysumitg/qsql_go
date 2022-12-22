@@ -1,0 +1,36 @@
+{{define "title"}}
+Server detail
+{{end}}
+
+{{define "content"}}
+<h1> Saved Query</h1>
+<table class="table table-bordered table-striped">
+    <tbody>
+        <tr>
+            <td>ID</td>
+            <td>{{.SavesQuery.ID}}</td>
+        </tr>
+        <tr>
+            <td>Catagory</td>
+            <td>{{.SavesQuery.Catagory}}</td>
+        </tr>
+        <tr>
+            <td>Name</td>
+            <td>{{.SavesQuery.Name}}</td>
+        </tr>
+
+
+
+        <tr>
+            <td>Query</td>
+            <td>{{.SavesQuery.Sql}}</td>
+        </tr>
+
+   
+    </tbody>
+</table>
+
+<hr />
+
+ 
+{{end}}

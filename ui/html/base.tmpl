@@ -1,0 +1,175 @@
+{{define "base"}}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
+    <meta name="generator" content="Hugo 0.84.0">
+    <title>{{block "title" .}}
+        myapp
+        {{end}}
+    </title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="https://unpkg.com/notie/dist/notie.min.css">
+
+    <link rel="stylesheet" type="text/css" href="/static/css/work.css">
+
+ 
+</head>
+
+<body>
+
+    <header class="navbar navbar-dark bg-dark flex-md-nowrap p-0 shadow rounded-0">
+        <a class="navbar-brand col-md-3 col-lg-2 me-0 px-3" href="#">QSQL {{with .CurrentServer}} : {{.Name}} {{end}} </a>
+       
+
+ 
+
+        <div class="col-md-6 col-lg-8 navbar-nav">
+            <div class="nav-item text-nowrap"> 
+        {{if .Servers}}
+            <form>
+                <div class="form-group">
+                    <select class="form-control w-100" id="exampleFormControlSelect1">
+                        {{range .Servers}}
+                            <option value="{{.ID}}">{{.Name}}</option>
+                        {{end}}
+                    </select>
+                </div>
+            </form>
+        {{end}}
+
+
+
+         
+            </div>
+        </div>
+    </header>
+
+    <div class="container-fluid">
+        <div class="row">
+          
+
+            <main class="col  ms-sm-auto    px-md-2">
+                {{template "content" .}}
+            </main>
+        </div>
+    </div>
+
+
+
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons@4.28.0/dist/feather.min.js"
+        integrity="sha384-uO3SXW5IuS1ZpFPKugNNWqTZRRglnUJK6UAZ/gxOX80nxEkN9NcGZTftn6RzhGWE" crossorigin="anonymous">
+    </script>
+ <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js" type="text/javascript"></script>
+
+
+    <script src="https://unpkg.com/notie"></script>
+
+    <!--https://sweetalert2.github.io/#download-->
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
+    <script>
+    function notify(message, type='success'){
+        notie.alert({
+            type: type , //Number|String, // optional, default = 4, enum: [1, 2, 3, 4, 5, 'success', 'warning', 'error','info', 'neutral']
+            text: message,
+            stay: false, // optional, default = false
+            time: 3, // optional, default = 3, minimum = 1,
+            position: 'top' // optional, default = 'top', enum: ['top', 'bottom']
+        })
+    }
+ 
+
+
+
+
+ 
+    function notifyModel(message, type='success'){
+
+        Swal.fire({
+                position: 'top-end',
+                icon: type,
+                title: message,
+                text: 'Something went wrong!',
+                showConfirmButton: false,
+                timer: 1500
+            })
+    }
+
+    
+
+            {{with .Error}}
+        notify("{{.}}", "error")
+        {{end}}
+
+        {{with .Flash}}
+        notify("{{.}}", "success")
+        {{end}}
+
+        {{with .Warning}}
+        notify("{{.}}", "warning")
+        {{end}} 
+
+       </script>      
+           <link rel="stylesheet" type="text/css" href="/static/css/fonts.css">
+ 
+
+
+    <script>
+        let socket = null;
+
+        $(document).ready(function () {
+            console.log("ready2!");
+            socket = new WebSocket("ws://127.0.0.1:4000/ws/notification");
+
+            socket.onopen = () =>{
+                console.log("Websocket opened.....")
+            }
+
+        })
+    </script>
+</body>
+
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{{end}}

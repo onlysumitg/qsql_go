@@ -1,0 +1,61 @@
+{{define "title"}}
+Server detail
+{{end}}
+
+{{define "content"}}
+<h1> server view</h1>
+<table>
+    <tbody>
+        <tr>
+            <td>Server ID</td>
+            <td>{{.Server.ID}}</td>
+        </tr>
+
+        <tr>
+            <td>Server Name</td>
+            <td>{{.Server.Name}}</td>
+        </tr>
+
+        <tr>
+            <td>Server IP</td>
+            <td>{{.Server.IP}}</td>
+        </tr>
+        <tr>
+            <td>WorkLib</td>
+            <td>{{.Server.WorkLib}}</td>
+        </tr>
+        <tr>
+            <td>Server Port</td>
+            <td>{{.Server.Port}}</td>
+        </tr>
+
+        <tr>
+            <td>Server Name</td>
+            <td>{{.Server.Ssl}}</td>
+        </tr>
+
+        <tr>
+            <td>User Name</td>
+            <td>{{.Server.UserName}}</td>
+        </tr>
+
+       <tr>
+            <td>Password</td>
+            <td>{{.Server.Password}}</td>
+        </tr>
+
+       <tr>
+            <td>Connections</td>
+            <td>{{.Server.Connections}}</td>
+        </tr>
+    </tbody>
+</table>
+
+<form method="post" action="/servers/delete">
+        <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+          <input type="hidden" name="serverid" value="{{.Server.ID}}">
+    <button type="submit" class="btn btn-danger">Confirm</button>
+
+</form>
+
+{{end}}
