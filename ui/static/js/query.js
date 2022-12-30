@@ -6,6 +6,8 @@
      data() {
          return {
              contentA: sessionStorage.getItem("adhoc_sql") || "",
+             contentB: "",//sessionStorage.getItem("contentbsaved") || "",
+
              contentR: "",
              sqlresults: [],
              showModal: false,
@@ -26,8 +28,56 @@
              savesQueries:{},
              queryFields:[],
              currentQuery:{},
+
+
+             searchText:"",
+             searchCatagory:"*ALL"
           }
      },
+
+     computed: {
+        filteredCatagoryList() {
+            let tempSearch = this.searchCatagory.toUpperCase();
+            if (tempSearch.trim().lenthg == 0) return JSON.parse(JSON.stringify(this.savesQueries));
+
+            if (tempSearch.trim() == "*ALL") return JSON.parse(JSON.stringify(this.savesQueries));
+
+            let tempsavesQueries = JSON.parse(JSON.stringify(this.savesQueries))
+     
+
+            let returnobj = {}
+            returnobj[tempSearch] = tempsavesQueries[tempSearch]
+            return  returnobj
+        },
+
+
+          filteredQueryList() {
+
+
+
+            let tempSearch = this.searchText.toUpperCase();
+            if (tempSearch.trim().lenthg == 0) return this.savesQueries;
+
+            let tempsavesQueries = JSON.parse(JSON.stringify(this.filteredCatagoryList))
+             
+            for (let k of Object.keys(tempsavesQueries)) {
+     
+              tempsavesQueries[k] = tempsavesQueries[k].filter(query => {
+                  return (
+                      query.name.toUpperCase().match(tempSearch) ||
+                      query.category.toUpperCase().match(tempSearch) 
+                    //  || query.sql.toUpperCase().match(tempSearch)  
+                    );
+              })
+            } 
+  
+            return tempsavesQueries
+          
+          },
+      },
+
+
+
 
      mounted() {
         try {
@@ -44,7 +94,7 @@
          try {
          this.sqlresults = JSON.parse(initialResultData)}
          catch (error) {
-            console.error(error)
+            //console.error(error)
 
          }
 
@@ -56,9 +106,20 @@
 
          }
 
+         try{
+            this.contentB = contentB
+         }
+         catch (error) {
+            // console.error(error)
+ 
+          }
  
      },
      methods: {
+
+   
+ 
+
         showForm(query){
             this.currentQuery = query
             this.queryFields = query.fields
@@ -167,7 +228,7 @@
 
          showSingleRow(e, result, index) {
 
-
+           
              this.singleRowData = result
              this.updateSingleRowIndex(index)
              e.preventDefault();
@@ -221,7 +282,11 @@
              this.contentA = val
              sessionStorage.setItem("adhoc_sql", val);
          },
-
+         changeContentB(val) {
+            this.closeSingleRow()
+            this.contentB = val
+            //sessionStorage.setItem("contentbsaved", val);
+        },
          getFieldValue(field){
             let returnValue =  localStorage.getItem(field.Name);
 
@@ -233,7 +298,7 @@
          },
          buildSQL(e){
             e.preventDefault()
-            console.log(e.target)
+       
 
             this.processing = true
 
@@ -246,7 +311,7 @@
                     localStorage.setItem(entry[0], entry[1])
                 }
                 result = JSON.stringify(result)
-                console.log(result);
+            
 
                 let config = {
                     headers: {
@@ -305,10 +370,15 @@
              var local = this
              this.showModal = true
              axios.post('/query/run', data, config).then(function (response) {
-                 console.log(response)
+                
                  local.sqlresults = response.data
 
              }).catch(function (error) {
+                if (error.response.status === 303) {
+                     location.reload()
+                    //let data = JSON.parse(error.response.data)
+                }
+           
                 console.error(error)
                  // handle error
                  // console.log(error);
@@ -332,7 +402,7 @@
              try {
                  returnString = formatJson(stringval)
                  this.singleColumnMode = "json"
-                console.log("this is a JSON")
+            
                  return returnString
 
              } catch (error) {
@@ -342,8 +412,7 @@
              try {
                  returnString = formatXML(stringval)
                  this.singleColumnMode = "xml"
-                 console.log("this is a xml")
-
+            
                  return returnString
              } catch (error) {
                 //console.error(error)

@@ -52,6 +52,9 @@ func (app *application) ServerList(w http.ResponseWriter, r *http.Request) {
 	data := app.newTemplateData(r)
 	data.Servers = app.servers.List()
 	nextUrl := r.URL.Query().Get("next") //filters=["color", "price", "brand"]
+	if nextUrl == "" {
+		nextUrl = "/query"
+	}
 	data.Next = nextUrl
 	app.render(w, r, http.StatusOK, "server_list.tmpl", data)
 
@@ -67,17 +70,24 @@ func (app *application) ServerSelect(w http.ResponseWriter, r *http.Request) {
 		app.serverError(w, r, err)
 		return
 	}
+	if server.OnHold {
+		app.sessionManager.Put(r.Context(), "warning", "Server is on hold. Please select a differnt server")
 
-	app.sessionManager.Put(r.Context(), "currentserver", server.ID)
-	app.sessionManager.Put(r.Context(), "flash", fmt.Sprintf("Selected server: %s", server.Name))
+	} else {
+		app.sessionManager.Put(r.Context(), "currentserver", server.ID)
+		app.sessionManager.Put(r.Context(), "flash", fmt.Sprintf("Selected server: %s", server.Name))
 
-	nextUrl := r.URL.Query().Get("next") //filters=["color", "price", "brand"]
+		nextUrl := r.URL.Query().Get("next") //filters=["color", "price", "brand"]
 
-	if nextUrl != "" {
-		http.Redirect(w, r, nextUrl, http.StatusSeeOther)
-		return
+		if nextUrl != "" {
+			http.Redirect(w, r, nextUrl, http.StatusSeeOther)
+			return
+		}
 	}
+
 	app.goBack(w, r, http.StatusSeeOther)
+
+	//http.Redirect(w, r, "/query", http.StatusSeeOther)
 
 }
 
@@ -311,7 +321,7 @@ func (app *application) ServerUpdatePost(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	err = app.servers.Update(&server)
+	err = app.servers.Update(&server, true)
 	if err != nil {
 		app.serverError(w, r, err)
 		return

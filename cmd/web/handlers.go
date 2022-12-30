@@ -6,6 +6,18 @@ import (
 	"net/http"
 )
 
+func (app *application) langingPage(w http.ResponseWriter, r *http.Request) {
+	http.Redirect(w, r, "/servers", http.StatusSeeOther)
+
+}
+
+func (app *application) helpPage(w http.ResponseWriter, r *http.Request) {
+	data := app.newTemplateData(r)
+
+	app.render(w, r, http.StatusOK, "help.tmpl", data)
+
+}
+
 // ------------------------------------------------------
 // basic http operations
 // ------------------------------------------------------

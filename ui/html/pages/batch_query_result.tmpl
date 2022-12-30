@@ -1,5 +1,5 @@
 {{define "title"}}
-Run SQL
+Batch Query Result
 {{end}}
 
 {{define "content"}}
@@ -16,15 +16,36 @@ Run SQL
 
     <div class="maxheight72">
 
+      <h3>Query Details</h3>
+      <table id="serverslist" class="table table-bordered table-striped">
+        <tbody>
+          <tr>
+            <td>Server</td>
+            <td>{{.BatchQuery.Server.Name}}</td>
+        </tr>
 
+        <tr>
+          <td>SQL</td>
+          <td>{{.BatchQuery.RunningSql.Sql}}</td>
+      </tr>
+      <tr>
+        <td>Status</td>
+        <td>{{.BatchQuery.Status}}</td>
+    </tr>
+      <tr>
+        <td>Created at</td>
+        <td>{{.BatchQuery.CreatedAt}}</td>
+    </tr>
+
+    <tr>
+      <td>Completed at</td>
+      <td>{{.BatchQuery.CompletedAt}}</td>
+  </tr>
+        </tbody>
+      </table>
  
-      {{.BatchQuery.RunningSql.Sql}} 
-      <hr />
-      {{.BatchQuery.CreatedAt}} 
-      <hr />
-      {{.BatchQuery.CompletedAt}} 
-
-<hr />
+     
+ 
       
 
     </div>
@@ -37,7 +58,7 @@ Run SQL
 
 
 
-  <div id="rightone" class=" maxheight72">
+  <div id="rightone" class=" maxheight72" style="overflow:hidden;">
     {{template "query_result" .}}
      </div>
 
@@ -45,10 +66,7 @@ Run SQL
 
 </div>
 
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js" type="text/javascript"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js" type="text/javascript"></script>
-
+ 
 
 <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12" type="text/javascript"></script>
 <script src="https://ajaxorg.github.io/ace-builds/src-min-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
@@ -65,14 +83,18 @@ Run SQL
  var splitmode = 2
  var savesQueries= {}
  var initialResultData = {{toJson .BatchQuery.QueryResults}}  
- console.log("==initialResultData==")
- console.log(initialResultData)
+ 
 </script>
 
+
+{{end}}
+
+{{define "aftercontent"}}
 
 <script src="/static/js/textformat.js" type="text/javascript"></script>
 <script src="/static/js/editoracevue.js" type="text/javascript"></script>
 <script src="/static/js/query.js" type="text/javascript"></script>
 <script src="/static/js/autoload.js" type="text/javascript"></script>
  
+
 {{end}}

@@ -1,7 +1,7 @@
 .maxheight72{
     max-height: calc(100vh - 72px);
     height: calc(100vh - 72px);
-    overflow: scroll;
+    overflow:hidden;
 }
 
 .maxheight50{
@@ -46,7 +46,7 @@ min-width: calc(100vw / 2);
 
 /*Left*/
 .modal.left.fade .modal-dialog{
-    left: -500px;
+    
     -webkit-transition: opacity 0.3s linear, left 0.3s ease-out;
        -moz-transition: opacity 0.3s linear, left 0.3s ease-out;
          -o-transition: opacity 0.3s linear, left 0.3s ease-out;
@@ -59,7 +59,7 @@ min-width: calc(100vw / 2);
     
 /*Right*/
 .modal.right.fade .modal-dialog {
-    right: -500px;
+    right: -1px;
     -webkit-transition: opacity 0.3s linear, right 0.3s ease-out;
        -moz-transition: opacity 0.3s linear, right 0.3s ease-out;
          -o-transition: opacity 0.3s linear, right 0.3s ease-out;

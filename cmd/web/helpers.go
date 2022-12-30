@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os/exec"
+	"runtime"
 	"runtime/debug"
 
 	"github.com/go-playground/form/v4"
@@ -81,7 +83,7 @@ func (app *application) writeJSON(w http.ResponseWriter, status int, data interf
 // -----------------------------------------------------------------
 func (app *application) goBack(w http.ResponseWriter, r *http.Request, status int) {
 
-	log.Println("r.Header.Get(Referer) >>>>>>>>>", r.Header.Get("Referer"))
+	//log.Println("r.Header.Get(Referer) >>>>>>>>>", r.Header.Get("Referer"))
 	http.Redirect(w, r, r.Header.Get("Referer"), status)
 }
 
@@ -135,4 +137,27 @@ func (app *application) errorResponse(w http.ResponseWriter, r *http.Request, st
 		//app.logError(r, err)
 		w.WriteHeader(500)
 	}
+}
+
+// -----------------------------------------------------------------
+//
+// -----------------------------------------------------------------
+func openbrowser(url string) {
+	log.Println("Opening browser:", url)
+	var err error
+
+	switch runtime.GOOS {
+	case "linux":
+		err = exec.Command("xdg-open", url).Start()
+	case "windows":
+		err = exec.Command("rundll32", "url.dll,FileProtocolHandler", url).Start()
+	case "darwin":
+		err = exec.Command("open", url).Start()
+	default:
+		err = fmt.Errorf("unsupported platform")
+	}
+	if err != nil {
+		log.Fatal(err)
+	}
+
 }

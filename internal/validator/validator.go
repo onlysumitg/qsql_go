@@ -42,6 +42,16 @@ func NotBlank(value string) bool {
 	return strings.TrimSpace(value) != ""
 }
 
+// Must start with
+func MustStartwith(value string, prefix string) bool {
+	return strings.HasPrefix(strings.ToUpper(strings.Trim(value, " ")), strings.ToUpper(strings.Trim(prefix, " ")))
+}
+
+// Must start with
+func MustNotContainBlanks(value string) bool {
+	return !strings.Contains(value, " ")
+}
+
 // MaxChars() returns true if a value contains no more than n characters.
 func MaxChars(value string, n int) bool {
 	return utf8.RuneCountInString(value) <= n

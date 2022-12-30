@@ -7,7 +7,6 @@ import (
 	"regexp"
 	"strings"
 	"sync"
-	"time"
 
 	"github.com/zerobit-tech/godbc/database/sql"
 
@@ -19,10 +18,12 @@ type RunningSql struct {
 	ID            string
 	Sql           string
 	RunningNow    string
-	Offset        int
 	StatementType string
 	LoadMore      bool
 	ScrollTo      int
+	ResultSetSize int
+	LimitRecods   bool
+	Heading       string
 }
 
 var runningSQLQueryMap map[string]*sql.Rows = make(map[string]*sql.Rows, 10)
@@ -60,8 +61,19 @@ type QueryResult struct {
 func PrepareSQLToRun(runningSQL *RunningSql) {
 	finalSQL := strings.Trim(runningSQL.Sql, " ")
 	finalSQL = strings.ToUpper(finalSQL)
+	runningSQL.LimitRecods = true
+	runningSQL.ResultSetSize = 10
 
 	switch {
+
+	case strings.HasPrefix(finalSQL, "COMMIT"):
+		runningSQL.StatementType = "COMMIT"
+		runningSQL.RunningNow = runningSQL.Sql
+
+	case strings.HasPrefix(finalSQL, "ROLLBACK"):
+		runningSQL.StatementType = "ROLLBACK"
+		runningSQL.RunningNow = runningSQL.Sql
+
 	case strings.HasPrefix(finalSQL, "INSERT"):
 		runningSQL.StatementType = "INSERT"
 		runningSQL.RunningNow = runningSQL.Sql
@@ -83,13 +95,40 @@ func PrepareSQLToRun(runningSQL *RunningSql) {
 		//prepareSelectStatement(runningSQL, server)
 		runningSQL.RunningNow = runningSQL.Sql
 
+	case strings.HasPrefix(finalSQL, "@HEADING"):
+		var re = regexp.MustCompile(`(?mi)(@heading:.+?){1} `)
+		matches := re.FindStringSubmatch(runningSQL.Sql)
+
+		if len(matches) >= 2 {
+			headings := strings.Split(matches[1], ":")
+			runningSQL.Heading = headings[1]
+			runningSQL.RunningNow = re.ReplaceAllString(runningSQL.Sql, "")
+
+		}
+
+		runningSQL.Sql = runningSQL.RunningNow // 2nd time it will work for actual sql type
+
+		PrepareSQLToRun(runningSQL)
+
 	case strings.HasPrefix(finalSQL, "@BATCH"):
 		re := regexp.MustCompile(`(?i)@BATCH`)
 		runningSQL.StatementType = "@BATCH"
 		runningSQL.RunningNow = re.ReplaceAllString(runningSQL.Sql, "")
-		runningSQL.Sql = runningSQL.RunningNow
+		runningSQL.ResultSetSize = 5000
+		runningSQL.LimitRecods = false
+		runningSQL.Sql = runningSQL.RunningNow // 2nd time it will work for actual sql type
 
 	default:
+
+		if strings.HasPrefix(finalSQL, "@") {
+			for key, value := range QueryMap {
+				if strings.EqualFold(key, finalSQL) {
+					runningSQL.Sql = value
+					break
+				}
+			}
+		}
+
 		runningSQL.StatementType = "OTHER"
 		runningSQL.RunningNow = runningSQL.Sql
 	}
@@ -99,7 +138,7 @@ func PrepareSQLToRun(runningSQL *RunningSql) {
 // ------------------------------------------------------
 //
 // ------------------------------------------------------
-func ActuallyRunSQL(server Server, runningSQL RunningSql, ch chan<- []*QueryResult, wg *sync.WaitGroup) {
+func ActuallyRunSQL(server *Server, runningSQL RunningSql, ch chan<- []*QueryResult, wg *sync.WaitGroup) {
 	queryResult := ActuallyRunSQL2(server, runningSQL)
 	wg.Done()
 	ch <- queryResult
@@ -108,14 +147,9 @@ func ActuallyRunSQL(server Server, runningSQL RunningSql, ch chan<- []*QueryResu
 // ------------------------------------------------------
 //
 // ------------------------------------------------------
-func ActuallyRunSQL2(server Server, runningSQL RunningSql) []*QueryResult {
+func ActuallyRunSQL2(server *Server, runningSQL RunningSql) []*QueryResult {
 
-	log.Println("p1", time.Now())
 	QueryResults := server.RunQuery(&runningSQL)
-	log.Println("p2", time.Now())
-
-	log.Println("p4", time.Now())
-
 	return QueryResults
 }
 
@@ -147,7 +181,7 @@ func runSingleSQL(sqlsToProcess RunningSql, currentServer *Server) []QueryResult
 
 	PrepareSQLToRun(&sqlsToProcess)
 
-	queryResultList := ActuallyRunSQL2(*currentServer, sqlsToProcess)
+	queryResultList := ActuallyRunSQL2(currentServer, sqlsToProcess)
 	for _, queryResult := range queryResultList {
 		queryResults = append(queryResults, *queryResult)
 	}
@@ -169,7 +203,7 @@ func runMultpleSQLs(sqlsToProcess []RunningSql, currentServer *Server) []QueryRe
 			ch := make(chan []*QueryResult)
 			chList = append(chList, ch)
 			wg.Add(1)
-			go ActuallyRunSQL(*currentServer, runningSQL, ch, &wg)
+			go ActuallyRunSQL(currentServer, runningSQL, ch, &wg)
 		}
 
 	}

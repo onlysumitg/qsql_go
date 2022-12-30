@@ -18,6 +18,8 @@ import (
 type templateData struct {
 	CurrentYear int
 
+	HostUrl string
+
 	Form any //use this Form field to pass the validation errors and previously submitted data back to the template when we re-display the form.
 
 	// differnt notifications
@@ -38,12 +40,21 @@ type templateData struct {
 	SavesQueries []*models.SavedQuery
 	SavesQuery   *models.SavedQuery
 
-	SavesQueriesByCatagory map[string][]*models.SavedQuery
+	SavesQueriesByCategory map[string][]*models.SavedQuery
 
-	BatchQuery *models.BatchSql
+	BatchQuery   *models.BatchSql
 	BatchQueries []*models.BatchSql
+
+	BatchQueryRun  *models.BatchSQLRun
+	BatchQuertRuns []*models.BatchSQLRun
+
+	RepeatQuery   *models.BatchSql
+	RepeatQueries []*models.BatchSql
 	// ProcessingSavedQuery *models.SavedQuery
 	// SavedQueryFields     []*models.QueryField
+
+	ShorthandQueries []*models.ShorthandQuery
+	ShortHandQuery   *models.ShorthandQuery
 
 	Next string
 }
@@ -57,6 +68,7 @@ func (app *application) newTemplateData(r *http.Request) *templateData {
 
 		CSRFToken: nosurf.Token(r), // Add the CSRF token.
 
+		HostUrl: app.hostURL,
 	}
 }
 
@@ -116,9 +128,6 @@ func (app *application) render(w http.ResponseWriter, r *http.Request, status in
 // -----------------------------------------------------------------
 //
 // -----------------------------------------------------------------
-func humanDate(t time.Time) string {
-	return t.UTC().Format("02 Jan 2006 at 15:04")
-}
 
 func toJson(s interface{}) string {
 	jsonBytes, err := json.Marshal(s)
@@ -132,12 +141,34 @@ func toJson(s interface{}) string {
 // -----------------------------------------------------------------
 //
 // -----------------------------------------------------------------
+func yesNo(s bool) string {
+	if s {
+		return "Yes"
+	}
+
+	return "No"
+}
+
+func humanDate(t time.Time) string {
+	// Return the empty string if time has the zero value.
+	if t.IsZero() {
+		return ""
+	}
+	// Convert the time to UTC before formatting it.
+	//time.Kitchen
+	return t.Local().Format("02 Jan 2006 at 03:04:05PM")
+}
+
+// -----------------------------------------------------------------
+//
+// -----------------------------------------------------------------
 // Initialize a template.FuncMap object and store it in a global variable. This is essentially
 // a string-keyed map which acts as a lookup between the names of our custom template
 // functions and the functions themselves.
 var functions = template.FuncMap{
 	"humanDate": humanDate,
 	"toJson":    toJson,
+	"yesNo":     yesNo,
 }
 
 // -----------------------------------------------------------------

@@ -1,0 +1,47 @@
+{{define "title"}}
+Delete Batch query
+{{end}}
+
+{{define "content"}}
+<div class="px-5">
+    <div class="row">
+        <div class="col" style="padding-bottom: 10px;"><p class="h3">Delete Batch Query </p>
+       </div> 
+
+    </div> 
+<table class="table table-bordered table-striped">
+    <tbody>
+        <tr>
+            <td>Server</td>
+            <td>{{.BatchQuery.Server.Name}}</td>
+        </tr>
+
+        <tr>
+            <td>Query</td>
+            <td>{{.BatchQuery.RunningSql.RunningNow}}</td>
+        </tr>
+
+       
+     
+
+      
+
+        <tr>
+            <td>Status</td>
+            <td>{{.BatchQuery.Status}}</td>
+        </tr>
+
+   
+ 
+    </tbody>
+</table>
+
+<form method="post" action="/batchquery/delete">
+        <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+          <input type="hidden" name="queryid" value="{{.BatchQuery.RunningSql.ID}}">
+    <button type="submit" class="btn btn-danger">Confirm</button>
+
+</form>
+</div>
+
+{{end}}

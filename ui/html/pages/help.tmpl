@@ -1,0 +1,223 @@
+{{define "title"}}
+Help
+{{end}}
+
+{{define "content"}}
+<br />
+<div class="px-5">
+  <div class="row">
+    <div class="col" style="padding-bottom: 10px;">
+      </p>
+    </div>
+
+
+
+  </div>
+
+
+
+  <table id="helplist" class="table table-bordered table-striped">
+    <thead>
+      <tr>
+        <th>Category</th>
+        <th>Topic</th>
+        <th>Details</th>
+
+
+      </tr>
+    </thead>
+    <tbody>
+
+
+      <tr>
+        <td>Server</td>
+        <td>Select current working server</td>
+        <td>
+          <ol>
+            <li> Go to <a href="/servers">Server list</a>. Click Server name or click "Select" button</li>
+            <li> Pick server from Header menu's first drop down</li>
+          </ol>
+        </td>
+      </tr>
+
+
+
+      <tr>
+        <td>Saved query</td>
+        <td>Create new Saved Query</td>
+        <td>
+          <ol>
+            <li> Go to <a href="/savesql">Manage Saved query</a>. Click "+Add" button</li>
+            <li> Enter Category. This will be saved in upper case</li>
+
+            <li> Enter Name. This will be saved in upper case</li>
+            <li> Enter Query in the query editor. (below Save button)</li>
+             <li> Click "Save Button". </li>
+
+          </ol>
+        </td>
+      </tr>
+
+      <tr>
+        <td>Saved query</td>
+        <td>Add Query Paramters to the query</td>
+        <td>
+          <ol>
+            <li>without default value :  {{"{{"}}ParameterName{{"}}"}}. 
+            <ol><li>
+              Example <code>select * from customer where name=<strong>{{"{{"}}XYZName{{"}}"}}</strong></code></li>
+            </ol>
+            </li>
+            <li>with default value :  {{"{{"}}ParameterName:DefaultValue{{"}}"}}. 
+
+              <ol><li>
+                Example <code> select * from customer where name=<strong>{{"{{"}}XYZName:Sumit{{"}}"}}</strong></code></li>
+              </ol>
+            </li>
+
+
+          </ol>
+        </td>
+      </tr>
+
+
+      <tr>
+        <td>Saved query</td>
+        <td>Run Saved queries</td>
+        <td>
+          <ol>
+            <li> Go to <a href="/savesql/run">Run Saved query</a>.</li>
+            <li> Select query from left column.</li>
+            <li> Middle column will display the query paramters(if any).</li>
+            <li> Click "Run" button to execute query.</li>
+            
+
+          </ol>
+        </td>
+      </tr>
+
+
+      <tr>
+        <td>Batch query</td>
+        <td>Submit a long running query in batch</td>
+        <td>
+          <ol>
+            <li> Go to <a href="/query">run query page</a>.</li>
+            <li> Enter Query in the query editor with prefix <strong>@batch</strong></li>
+
+            <ol><li>
+              Example <code> <strong>@batch</strong> select * from customer where name='sumit' </code></li>
+            </ol>            
+
+            <li>This will submit the query in batch.</li>
+            <li>System checks all pending queries every <strong>30 seconds</strong></li>
+
+            <li>System will send a notification on screen when query results are available</li>
+
+
+          </ol>
+        </td>
+      </tr>
+
+      <tr>
+        <td>Batch query</td>
+        <td>Check batch query status and result</td>
+        <td>
+          <ol>
+            <li> Go to <a href="/batchquery">Batch query list</a>.</li>
+   
+
+          </ol>
+        </td>
+      </tr>
+
+
+
+      <tr>
+        <td>Run Adhoc Query</td>
+        <td>Run Adhoc queries</td>
+        <td>
+          <ol>
+            <li> Go to <a href="/query">to run adhoc queries</a>.</li>
+   
+
+          </ol>
+        </td>
+      </tr>
+
+
+      <tr>
+        <td>Run Adhoc Query</td>
+        <td>Run multiple Adhoc queries</td>
+        <td>
+          <ol>
+            <li> Go to <a href="/query">to run adhoc queries</a>.</li>
+            <li> Separate queries by a semi-coma <code><strong>;</strong></code></li>
+            <ol><li>
+              Example <code>   select * from customer where name='sumit' <strong>;</strong> select * from other table </code></li>
+            </ol>            
+
+          </ol>
+        </td>
+      </tr>
+
+
+      <tr>
+        <td>Run Adhoc Query</td>
+        <td>View a single row</td>
+        <td>
+          <ol>
+            <li> On query result table, do a <strong>right click </strong>on a row to view row in a model</li>
+   
+
+          </ol>
+        </td>
+      </tr>
+      <tr>
+        <td>Run Adhoc Query</td>
+        <td>View a column row</td>
+        <td>
+          <ol>
+            <li> On single row model, do a <strong>right click </strong>on a column to view a single column in a model</li>
+            <li> System will try detect the column value type like JSON or XML and display the formated value</li>
+
+
+          </ol>
+        </td>
+      </tr>
+
+
+      <tr>
+        <td>Shorthand queries</td>
+        <td>Shorthand </td>
+        <td>
+          <ol>
+            <li></li>
+
+
+          </ol>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+<br >
+
+<br >
+
+<br >
+</div>
+{{end}}
+
+
+{{define "aftercontent"}}
+
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.1/css/jquery.dataTables.css">
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.13.1/js/jquery.dataTables.js"></script>
+
+<script>
+  $(document).ready(function () {
+    $('#helplist').DataTable();
+  });
+</script>
+{{end}}

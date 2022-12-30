@@ -1,10 +1,15 @@
 {{define "title"}}
-Server detail
+Server Delete
 {{end}}
 
 {{define "content"}}
-<h1> server view</h1>
-<table>
+<div class="px-5">
+    <div class="row">
+        <div class="col" style="padding-bottom: 10px;"><p class="h3">Delete Server</p>
+       </div> 
+
+    </div> 
+<table class="table table-bordered table-striped">
     <tbody>
         <tr>
             <td>Server ID</td>
@@ -39,10 +44,7 @@ Server detail
             <td>{{.Server.UserName}}</td>
         </tr>
 
-       <tr>
-            <td>Password</td>
-            <td>{{.Server.Password}}</td>
-        </tr>
+   
 
        <tr>
             <td>Connections</td>
@@ -57,5 +59,6 @@ Server detail
     <button type="submit" class="btn btn-danger">Confirm</button>
 
 </form>
+</div>
 
 {{end}}

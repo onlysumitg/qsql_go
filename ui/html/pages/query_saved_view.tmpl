@@ -3,7 +3,12 @@ Server detail
 {{end}}
 
 {{define "content"}}
-<h1> Saved Query</h1>
+<div class="px-5">
+    <div class="row">
+        <div class="col" style="padding-bottom: 10px;"><p class="h3">Query Details</p>
+       </div> 
+
+    </div> 
 <table class="table table-bordered table-striped">
     <tbody>
         <tr>
@@ -11,8 +16,8 @@ Server detail
             <td>{{.SavesQuery.ID}}</td>
         </tr>
         <tr>
-            <td>Catagory</td>
-            <td>{{.SavesQuery.Catagory}}</td>
+            <td>Category</td>
+            <td>{{.SavesQuery.Category}}</td>
         </tr>
         <tr>
             <td>Name</td>
@@ -30,7 +35,9 @@ Server detail
     </tbody>
 </table>
 
-<hr />
+<a class="btn btn-primary " href="/savesql">Back to Query list</a>
+
+</div>
 
  
 {{end}}

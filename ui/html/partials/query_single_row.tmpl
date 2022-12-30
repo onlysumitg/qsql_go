@@ -1,11 +1,11 @@
 {{define "query_single_row"}}
-<div v-if="showSinglRow" class="modal left fade in" id="myModal2" tabindex="-1" style="display:block" role="dialog"
+<div v-if="showSinglRow" class="modal left fade" :class="{  show: showSinglRow }" id="myModal2" tabindex="-1" style="display:block" role="dialog"
 aria-labelledby="myModalLabel2">
 
 <div class="modal-mask" @click="showSinglRow = false">
   <div class="modal-wrapper" @click="donothing($event)">
 
-    <div class="modal-dialog" role="document">
+    <div class="modal-dialog"  >
       <div class="modal-content">
 
         <div class="modal-header">
@@ -42,7 +42,7 @@ aria-labelledby="myModalLabel2">
                   </p>
                 </th>
 
-                <td nowrap class="  ">
+                <td class="">
                   [[singleRow[col.Name] ]]</td>
               </tr>
             </tbody>

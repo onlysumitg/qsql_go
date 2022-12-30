@@ -3,14 +3,15 @@
   <form action="/savesql/add" method="POST">
 
     <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+    <input name="id"   type="hidden" value="{{.Form.ID}}"></input>
 
     <div class="form-group">
-      <label for="catagory">Catagory</label>
-      <input id="catagory" class="form-control {{with .Form.FieldErrors.catagory}} is-invalid {{end}}" type="text"
-        name="catagory" aria-describedby="catagoryhelp" placeholder="Catagory" value='{{.Form.Catagory}}'
+      <label for="category">Category</label>
+      <input id="category" class="form-control {{with .Form.FieldErrors.category}} is-invalid {{end}}" type="text"
+        name="category" aria-describedby="categoryhelp" placeholder="Category" value='{{.Form.Category}}'
         required></input>
       <!-- Use the `with` action to render the value of .Form.FieldErrors.title if it is not empty. -->
-      {{with .Form.FieldErrors.Catagory}}
+      {{with .Form.FieldErrors.category}}
       <div class='invalid-feedback'>{{.}}</div>
       {{end}}
     </div>
@@ -28,15 +29,19 @@
       {{end}}
     </div>
 
-
+  
     <div class="form-group">
-       
-      <input type="hidden"   name ="sql" class="form-control" v-model="contentA" value="{{.Form.Sql}}"></input>
+        
+      <input type="hidden"   name ="sql" class="form-control {{with .Form.FieldErrors.sql}} is-invalid {{end}} " v-model="contentB" value="{{.Form.Sql}}"></input>
+      {{with .Form.FieldErrors.sql}}
+      <div class='invalid-feedback'>{{.}}</div>
+      {{end}}
+
       </div>
-    <br />
-    <button type="submit" class="btn btn-primary">Save</button>
 
-
+      <br />
+      <button type="submit" class="btn btn-primary">Save</button>
+   
   </form>
 </div>
 {{end}}

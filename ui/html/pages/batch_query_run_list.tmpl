@@ -1,0 +1,69 @@
+{{define "title"}}
+Batch queries
+{{end}}
+
+{{define "content"}}
+<br />
+<div class="px-5">
+
+ <div class="row">
+
+ <div class="col-10"  style="padding-bottom: 10px;"><p class="h3">Results for Batch job</p></div>
+
+ </div>
+ 
+ <table id="batchqueryrunlist"  data-order='[[ 0 , "desc" ]]'  class="table table-bordered table-striped">
+   <thead>
+     <tr>
+      <th>Run#</th>
+ 
+       <th>CreatedAt</th>
+        
+       
+       <th>Options </th>
+       
+      </tr>
+    </thead>
+    <tbody>
+      
+      {{if .BatchQuertRuns}}
+        {{range .BatchQuertRuns}}
+        <tr>
+          <td>{{.RunCounter}}</td>
+ 
+             <td>{{.CreatedAt | humanDate }}</td>
+          
+            
+            <td>
+              <a class="btn btn-primary" href='/batchquery/runs/result/{{.ID}}'  >Results</a>
+
+            </td>
+
+        </tr>
+        {{end}}
+          </tbody>
+        </table>
+    {{end}}
+  </div>
+
+{{end}}
+
+
+{{define "aftercontent"}}
+
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.1/css/jquery.dataTables.css">
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.13.1/js/jquery.dataTables.js"></script>
+
+<script>
+  
+    $(document).ready( function () {
+      $('#batchqueryrunlist').DataTable(
+        {
+              "language": {
+                "emptyTable": "No results found"
+              }
+          }
+      );
+  } );
+</script>
+{{end}}

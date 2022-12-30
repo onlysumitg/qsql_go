@@ -22,8 +22,10 @@ func (app *application) SavedQueryHandlers(router *chi.Mux) {
 		r.Get("/", app.SavedQueryList)
 		r.Get("/{queryid}", app.SavedQueryView)
 
-		r.Get("/add", app.SavedQueryAddScreen)
-		r.Post("/add", app.SavedQueryAddScreenPost)
+		r.Get("/add", app.SavedQueryAdd)
+		r.Post("/add", app.SavedQueryAddPost)
+
+		r.Get("/update/{queryid}", app.SavedQueryUpdate)
 
 		r.Get("/delete/{queryid}", app.SavedQueryDelete)
 		r.Post("/delete", app.SavedQueryDeleteConfirm)
@@ -57,19 +59,19 @@ func (app *application) SavedQueryRun(w http.ResponseWriter, r *http.Request) {
 
 	savesQueries := app.savedQueries.List()
 	data.SavesQueries = savesQueries
-	data.SavesQueriesByCatagory = make(map[string][]*models.SavedQuery)
+	data.SavesQueriesByCategory = make(map[string][]*models.SavedQuery)
 
 	//queryID := chi.URLParam(r, "queryid")
 
 	for _, savesQuery := range savesQueries {
 		savesQuery.PopulateFields()
 
-		queryList, found := data.SavesQueriesByCatagory[savesQuery.Catagory]
+		queryList, found := data.SavesQueriesByCategory[savesQuery.Category]
 		if !found {
 			queryList = make([]*models.SavedQuery, 0)
 		}
 		queryList = append(queryList, savesQuery)
-		data.SavesQueriesByCatagory[savesQuery.Catagory] = queryList
+		data.SavesQueriesByCategory[savesQuery.Category] = queryList
 
 	}
 
@@ -159,7 +161,7 @@ func (app *application) SavedQueryRunAsJson(w http.ResponseWriter, r *http.Reque
 // ------------------------------------------------------
 //
 // ------------------------------------------------------
-func (app *application) SavedQueryAddScreen(w http.ResponseWriter, r *http.Request) {
+func (app *application) SavedQueryAdd(w http.ResponseWriter, r *http.Request) {
 	data := app.newTemplateData(r)
 	data.Form = models.SavedQuery{}
 	app.render(w, r, http.StatusOK, "query_saved_add.tmpl", data)
@@ -187,7 +189,7 @@ func (app *application) SavedQueryView(w http.ResponseWriter, r *http.Request) {
 // ------------------------------------------------------
 //
 // ------------------------------------------------------
-func (app *application) SavedQueryAddScreenPost(w http.ResponseWriter, r *http.Request) {
+func (app *application) SavedQueryAddPost(w http.ResponseWriter, r *http.Request) {
 
 	err := r.ParseForm()
 	if err != nil {
@@ -205,25 +207,28 @@ func (app *application) SavedQueryAddScreenPost(w http.ResponseWriter, r *http.R
 	}
 
 	savedQuery.CheckField(validator.NotBlank(savedQuery.Name), "name", "This field cannot be blank")
-	savedQuery.CheckField(validator.NotBlank(savedQuery.Catagory), "catagory", "This field cannot be blank")
+	savedQuery.CheckField(validator.NotBlank(savedQuery.Category), "category", "This field cannot be blank")
 	savedQuery.CheckField(validator.NotBlank(savedQuery.Sql), "sql", "This field cannot be blank")
 	if !savedQuery.Valid() {
 		data := app.newTemplateData(r)
 		data.Form = savedQuery
 		app.sessionManager.Put(r.Context(), "error", "Please fix error(s) and resubmit")
 
-		app.render(w, r, http.StatusUnprocessableEntity, "server_add.tmpl", data)
+		app.render(w, r, http.StatusUnprocessableEntity, "query_saved_add.tmpl", data)
 		return
 	}
 
-	id, err := app.savedQueries.Insert(&savedQuery)
+	id, err := app.savedQueries.Save(&savedQuery)
 	if err != nil {
 		app.serverError(w, r, err)
 		return
 	}
+	fmt.Println("id", id)
 	app.sessionManager.Put(r.Context(), "flash", fmt.Sprintf("Query %s added sucessfully", savedQuery.Name))
 
-	http.Redirect(w, r, fmt.Sprintf("/savesql/%s", id), http.StatusSeeOther)
+	//http.Redirect(w, r, fmt.Sprintf("/savesql/%s", id), http.StatusSeeOther)
+	http.Redirect(w, r, "/savesql/add", http.StatusSeeOther)
+
 }
 
 // ------------------------------------------------------
@@ -271,5 +276,27 @@ func (app *application) SavedQueryDeleteConfirm(w http.ResponseWriter, r *http.R
 	app.sessionManager.Put(r.Context(), "flash", "Query deleted sucessfully")
 
 	http.Redirect(w, r, "/savesql", http.StatusSeeOther)
+
+}
+
+// ------------------------------------------------------
+// add new server
+// ------------------------------------------------------
+func (app *application) SavedQueryUpdate(w http.ResponseWriter, r *http.Request) {
+
+	queryid := chi.URLParam(r, "queryid")
+
+	savedQuery, err := app.savedQueries.Get(queryid)
+	if err != nil {
+		app.sessionManager.Put(r.Context(), "error", fmt.Sprintf("Error updating server: %s", err.Error()))
+		app.goBack(w, r, http.StatusBadRequest)
+		return
+	}
+
+	data := app.newTemplateData(r)
+
+	data.Form = savedQuery
+
+	app.render(w, r, http.StatusOK, "query_saved_add.tmpl", data)
 
 }

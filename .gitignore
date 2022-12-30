@@ -1,2 +1,5 @@
 *.db
 internal.db
+
+build/
+db/

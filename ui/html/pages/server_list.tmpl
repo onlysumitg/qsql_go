@@ -4,41 +4,67 @@ Servers
 
 {{define "content"}}
 <br />
+<div class="px-5">
  <div class="row">
- <div class="col-10"><p class="h3">Servers</p></div>
+ <div class="col" style="padding-bottom: 10px;"><p class="h3">Servers <a class="btn btn-primary" href="/servers/add">+Add</a></p>
+</div>
 
- <div class="col-2"><a href="/servers/add">+Add</a></div>
- </div>
-    {{if .Servers}}
+ 
 
-    <table class="table table-bordered table-striped">
+</div>
+
+
+    <table id="serverslist" class="table table-bordered table-striped">
       <thead>
         <tr>
             <th>Name</th>
+            <th><span>On Hold?</span></th>
+
             <th>IP</th>
             <th>Work Lib</th>
             <th>Port</th>
             <th>SSL</th>
+            <th>NOT allowed</th>
+           
             <th>User</th>
             <th>Options </th>
 
         </tr>
           </thead>
           <tbody>
+            {{if .Servers}}
 
         {{range .Servers}}
         <tr>
-            <td><a href='/servers/select/{{.ID}}?next={{$.Next}}'>{{.Name}}</a></td>
+            <td><a {{if not .OnHold }} href='/servers/select/{{.ID}}?next={{$.Next}}'  {{ end }}>{{.Name}}</a></td>
+           
+            <td data-toggle="tooltip" data-placement="top" title="{{.OnHoldMessage}}">
+              {{if .OnHold}}
+              <p class="text-danger h5  ">{{yesNo .OnHold}}</p>
+              {{else}}
+              {{yesNo .OnHold}}
+              {{end}}
+            </td>
             <td>{{.IP}}</td>
             <td>{{.WorkLib}}</td>
             <td>{{.Port}}</td>
-            <td>{{.Ssl}}</td>
+            <td>{{yesNo .Ssl}}</td>
+            <td> 
+              <span class="text-danger h6">
+              {{if not .AllowInsert}} INSERT  {{end}}
+              {{if not .AllowUpdate}} UPDATE  {{end}}
+              {{if not .AllowDelete}} DELETE  {{end}} 
+
+              </span>
+            </td>
+           
             <td>{{.UserName}}</td>
             <td>
-                     <a href='/servers/select/{{.ID}}?next={{$.Next}}'>Select</a>
-
-                     <a href='/servers/update/{{.ID}}'  >Edit</a>
-                     <a href='/servers/delete/{{.ID}}'  >Delete</a>
+                  {{if not .OnHold }}
+                     <a class="btn btn-primary" href='/servers/select/{{.ID}}?next={{$.Next}}'>Select</a> 
+                  {{ end }}
+                     <a class="btn btn-info" href='/servers/update/{{.ID}}'  >Edit</a> 
+                     <a class="btn btn-danger" href='/servers/delete/{{.ID}}'  >Delete</a>
 
             </td>
 
@@ -48,5 +74,25 @@ Servers
         </table>
     {{end}}
 
+  </div>
+    {{end}}
 
+
+{{define "aftercontent"}}
+
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.1/css/jquery.dataTables.css">
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.13.1/js/jquery.dataTables.js"></script>
+
+<script>
+  
+    $(document).ready( function () {
+      $('#serverslist').DataTable(
+          {
+              "language": {
+                "emptyTable": "No records. Please add a new server."
+              }
+          }
+      );
+  } );
+</script>
 {{end}}

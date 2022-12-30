@@ -13,21 +13,35 @@ Run SQL
   <!-- quert start-->
 
   <div id="leftone" class=""  >
-
-
-    <div class="maxheight72 p-1">
-
-      
   
+    <div class="maxheight72 p-1" style="overflow:auto">
+   
+      <form id="dontsubmitform" action="@" method="">
 
-         <div :key="propertyName" v-for="(queries,propertyName) in savesQueries" class="">
-          <ul class="list-group  list-group-flush ">
+          <div class="form-group">
+              <label for="searchcategoty">Category</label>
+              <select  v-model="searchCatagory"  id="searchcategoty" class="form-control   mb-3" aria-label="Default select example">          
+                <option value="*ALL">All</option>
+                 <option v-for="(queries,propertyName) in savesQueries" :value="propertyName">[[propertyName]]</option>
+                
+              </select>
+          </div>
+          
+          <div class="form-group">
+              <input  v-model="searchText" class="form-control" id="saechquery" placeholder="search"></input>
+          </div>
+      </form>
+<hr />
+
+<div >
+         <div :key="propertyName" v-for="(queries,propertyName) in filteredQueryList" class="">
+          <ul v-if="queries.length>0" class="">
             <li>[[propertyName]]
 
           <div :id="propertyName">
-            <div class="accordion-body">
-              <ul class="list-group list-group-flush list-group-numbered">
-                <li :key="query" v-for="(query,index) in queries" @click="showForm(query)" class="list-group-item"><button class="btn btn-link">[[query.name]]</button></li>
+            <div class="">
+              <ul >
+                <li :key="query" v-for="(query,index) in queries" @click="showForm(query)" class=""><button class="btn btn-link">[[query.name]]</button></li>
               </ul>
              
             </div>
@@ -37,7 +51,7 @@ Run SQL
              
         </div>
        
-
+      </div>
 
     </div>
   </div>
@@ -50,9 +64,10 @@ Run SQL
 
 
   <div id="midone" class=" maxheight72  px-3">
-   <div>
+ 
+   <div v-if="Object.keys(currentQuery).length > 0">
     <br />
-    [[currentQuery.catagory]] | [[currentQuery.name]]
+    [[currentQuery.category]] | [[currentQuery.name]]
     <br />
     <hr />
     <form  @submit="buildSQL" method="POST">
@@ -72,12 +87,13 @@ Run SQL
       <button type="submit" class="btn btn-primary">Run</button>
 
     </form>
- 
+    <hr />
+     <code>[[currentQuery.sql]]</code>
     </div>
   </div>
 
 
-  <div id="rightone" class=" maxheight72">
+  <div id="rightone" class=" maxheight72" style="overflow:hidden;">
 
 
 
@@ -90,11 +106,19 @@ Run SQL
 
 
 
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js" type="text/javascript"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js" type="text/javascript"></script>
+ 
+
+<script>
+ var csrftoken = '{{.CSRFToken}}'
+ var splitmode = 3
+ var savesQueries = {{toJson .SavesQueriesByCategory}}
+ var initialResultData = []
+</script>
 
 
+{{end}}
+
+{{define "aftercontent"}}
 <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12" type="text/javascript"></script>
 <script src="https://ajaxorg.github.io/ace-builds/src-min-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
 
@@ -105,15 +129,11 @@ Run SQL
 <script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
  
  
-<script>
- var csrftoken = '{{.CSRFToken}}'
- var splitmode = 3
- var savesQueries = {{toJson .SavesQueriesByCatagory}}
-</script>
 
+
+ 
 <script src="/static/js/textformat.js" type="text/javascript"></script>
 <script src="/static/js/editoracevue.js" type="text/javascript"></script>
 <script src="/static/js/query.js" type="text/javascript"></script>
 <script src="/static/js/autoload.js" type="text/javascript"></script>
- 
 {{end}}

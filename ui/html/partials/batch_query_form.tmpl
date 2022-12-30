@@ -1,0 +1,59 @@
+{{define "batch_query_form"}}
+<div style="padding:25px">
+
+
+  <form action="/batchquery/add" method="POST">
+    <div class="row">
+      <div class="col-8"  style="padding-bottom: 10px;"><p class="h5">Add Batch Job</p></div>
+      <div class="col-2"  style="padding-bottom: 10px;">       <button type="submit" class="btn btn-primary">Save</button>
+      </div>
+
+      </div>
+    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+    <input name="id"   type="hidden" value="{{.Form.ID}}"></input>
+
+  
+
+
+
+    <div class="form-group">
+      <label for="name">Run Every (x minutes)</label>
+      <input id="repeatevery" class="form-control {{with .Form.FieldErrors.repeatevery}} is-invalid {{end}}" type="number"
+        name="repeatevery" aria-describedby="repeateveryhelp" placeholder="" value='{{.Form.RepeatEvery}}'
+        required></input>
+      <!-- Use the `with` action to render the value of .Form.FieldErrors.title if it is not empty. -->
+      {{with .Form.FieldErrors.repeatevery}}
+      <div class='invalid-feedback'>{{.}}</div>
+      {{end}}
+      <small id="repeateveryhelp" class="form-text text-muted">Run this query every X minuts. Default = 1</small>
+
+    </div>
+
+    <div class="form-group">
+      <label for="name">Run Maximum Y times</label>
+      <input id="repeatxtimes" class="form-control {{with .Form.FieldErrors.repeatxtimes}} is-invalid {{end}}" type="number"
+        name="repeatxtimes" aria-describedby="repeatxtimeshelp" placeholder="" value='{{.Form.RepeatXtimes}}'
+        required></input>
+      <!-- Use the `with` action to render the value of .Form.FieldErrors.title if it is not empty. -->
+      {{with .Form.FieldErrors.repeatxtimes}}
+      <div class='invalid-feedback'>{{.}}</div>
+      {{end}}
+      <small id="repeatxtimeshelp" class="form-text text-muted">Maximum number of times to run this query. Default 0 = No limit</small>
+
+    </div>
+
+
+    <div class="form-group">
+        Query:  
+      <input type="hidden"   name ="sql" class="form-control {{with .Form.FieldErrors.sql}} is-invalid {{end}} " v-model="contentB" value="{{.Form.Sql}}"></input>
+      {{with .Form.FieldErrors.sql}}
+      <div class='invalid-feedback'>{{.}}</div>
+      {{end}}
+
+      </div>
+
+      
+   
+  </form>
+</div>
+{{end}}

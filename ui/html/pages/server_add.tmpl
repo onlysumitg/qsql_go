@@ -6,11 +6,15 @@ Add new Server
 
 {{define "content"}}
 <br />
-      <h2>Add Server</h2>
+<div class="px-5">
+    <div class="row">
+        <div class="col" style="padding-bottom: 10px;"><p class="h3">Add Server</p>
+       </div> 
+
+    </div> 
 
 <form action="/servers/add" method="POST">
-    <div class="form-group">
-        <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+         <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
 
         <div class="form-group">
             <label for="servername">Server Name</label>
@@ -53,18 +57,38 @@ Add new Server
         </div>
 
         <div class="form-group">
-            <input value='{{.Form.Ssl}}' type="checkbox" class="form-check-input" name="ssl" id="exampleCheck1">
+            <input value='true' {{if .Form.Ssl}} checked {{end}} type="checkbox" class="form-check-input" name="ssl" id="exampleCheck1">
             <label class="form-check-label" for="exampleCheck1">SSL</label>
         </div>
+
+        <div class="form-group">
+            <input value='true' {{if .Form.AllowInsert}} checked {{end}} type="checkbox" class="form-check-input" name="allowinsert" id="checkboxallowinsert">
+            <label class="form-check-label" for="checkboxallowinsert">Allow INSERT statements?</label>
+        </div>
+
+        <div class="form-group">
+            <input value='true' {{if .Form.AllowUpdate}} checked {{end}} type="checkbox" class="form-check-input" name="allowupdate" id="checkboxallowupdate">
+            <label class="form-check-label" for="checkboxallowupdate">Allow UPDATE statements?</label>
+        </div>
+
+        <div class="form-group">
+            <input value='true' {{if .Form.AllowDelete}} checked {{end}} type="checkbox" class="form-check-input" name="allowdelete" id="checkboxallowdelete">
+            <label class="form-check-label" for="checkboxallowdelete">Allow DELETE statements?</label>
+        </div>
+
 
         <div class="form-group">
             <label for="serveruser">Work lib</label>
 
             <input id="worklib" value='{{.Form.WorkLib}}' type="text"
-                class="form-control  {{with .Form.FieldErrors.worklib}} is-invalid {{end}}" name="worklib" required></input>
+                class="form-control  {{with .Form.FieldErrors.worklib}} is-invalid {{end}}"
+                aria-describedby="worklibHelp" 
+                name="worklib" required></input>
             {{with .Form.FieldErrors.worklib}}
             <div class='invalid-feedback'>{{.}}</div>
             {{end}}
+
+            <small id="worklibHelp" class="form-text text-muted">Needed to create temporary global variables.</small>
         </div>
 
 
@@ -98,10 +122,10 @@ Add new Server
         </div>
 
 
-    </div>
-    <br />
+     <br />
     <button type="submit" class="btn btn-primary">Submit</button>
 
 
 </form>
+</div> 
 {{end}}

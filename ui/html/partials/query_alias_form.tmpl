@@ -1,0 +1,38 @@
+{{define "query_alias_form"}}
+<div style="padding:25px">
+  <form action="/queryalias/add" method="POST">
+
+    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+    <input name="id"   type="hidden" value="{{.Form.ID}}"></input>
+
+ 
+
+
+
+    <div class="form-group">
+      <label for="name">Name</label>
+      <input id="name" class="form-control {{with .Form.FieldErrors.name}} is-invalid {{end}}" type="text"
+        name="name" aria-describedby="namehelp" placeholder="@Name must start with @" value='{{.Form.Name}}'
+        required></input>
+      <!-- Use the `with` action to render the value of .Form.FieldErrors.title if it is not empty. -->
+      {{with .Form.FieldErrors.name}}
+      <div class='invalid-feedback'>{{.}}</div>
+      {{end}}
+    </div>
+
+  
+    <div class="form-group">
+        Query: <p>[[contentB]]</p>
+      <input type="hidden"   name ="sql" class="form-control {{with .Form.FieldErrors.sql}} is-invalid {{end}} " v-model="contentB" value="{{.Form.Sql}}"></input>
+      {{with .Form.FieldErrors.sql}}
+      <div class='invalid-feedback'>{{.}}</div>
+      {{end}}
+
+      </div>
+
+      <br />
+      <button type="submit" class="btn btn-primary">Save</button>
+   
+  </form>
+</div>
+{{end}}

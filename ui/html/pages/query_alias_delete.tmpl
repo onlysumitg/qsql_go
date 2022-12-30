@@ -1,0 +1,42 @@
+{{define "title"}}
+Delete Query Alias
+{{end}}
+
+{{define "content"}}
+<div class="px-5">
+    <div class="row">
+        <div class="col" style="padding-bottom: 10px;"><p class="h3">Delete Query Alias  </p>
+       </div>
+<table class="table table-bordered table-striped">
+    <tbody>
+        <tr>
+            <td>ID</td>
+            <td>{{.ShortHandQuery.ID}}</td>
+        </tr>
+    
+        <tr>
+            <td>Name</td>
+            <td>{{.ShortHandQuery.Name}}</td>
+        </tr>
+
+
+
+        <tr>
+            <td>Query</td>
+            <td>{{.ShortHandQuery.Sql}}</td>
+        </tr>
+
+   
+    </tbody>
+</table>
+
+<hr />
+
+<form method="post" action="/queryalias/delete">
+        <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+          <input type="hidden" name="queryid" value="{{.ShortHandQuery.ID}}">
+    <button type="submit" class="btn btn-danger">Confirm</button>
+
+</form>
+</div>
+{{end}}

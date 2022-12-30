@@ -5,22 +5,50 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/onlysumitg/qsql2/internal/models"
 )
 
+// ------------------------------------------------------
+//
+// ------------------------------------------------------
 func (app *application) CurrentServerMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		currentServerID := app.sessionManager.GetString(r.Context(), "currentserver")
-		_, err := app.servers.Get(currentServerID)
+		server, err2 := app.servers.Get(currentServerID)
 
-		if err != nil {
-			app.sessionManager.Put(r.Context(), "flash", "Please select a severs")
+		continueToNext := true
+		message := "Please select a server"
+		if err2 != nil {
+			continueToNext = false
+		} else if server.OnHold {
+			continueToNext = false
+			message = "Server is on hold. Please select a differnt server"
+			app.sessionManager.Remove(r.Context(), "currentserver")
 
-			http.Redirect(w, r, fmt.Sprintf("/servers?next=%s", r.URL.RequestURI()), http.StatusSeeOther)
 		}
-		next.ServeHTTP(w, r)
+
+		if continueToNext {
+			next.ServeHTTP(w, r)
+		} else {
+			app.sessionManager.Put(r.Context(), "warning", message)
+
+			goToUrl := fmt.Sprintf("/servers?next=%s", r.URL.RequestURI())
+
+			reponseMap := make(map[string]string)
+			reponseMap["redirectTo"] = goToUrl
+			switch r.Header.Get("Accept") {
+
+			case "application/json":
+				app.writeJSON(w, http.StatusSeeOther, reponseMap, nil)
+
+			default:
+				http.Redirect(w, r, goToUrl, http.StatusSeeOther)
+			}
+		}
+
 	})
 
 }
@@ -77,7 +105,9 @@ func (app *application) LoadMoreQueryPost(w http.ResponseWriter, r *http.Request
 	}
 
 	models.PrepareSQLToRun(runningSQL)
-	queryResult := models.ActuallyRunSQL2(*currentServer, *runningSQL)
+	queryResult := models.ActuallyRunSQL2(currentServer, *runningSQL)
+
+	go app.servers.Update(currentServer, false)
 
 	app.writeJSON(w, http.StatusOK, queryResult[0], nil)
 
@@ -115,12 +145,20 @@ func (app *application) RunQueryPostAsync(w http.ResponseWriter, r *http.Request
 
 	for _, queryResult := range queryResults {
 		if queryResult.CurrentSql.StatementType == "@BATCH" {
+
+			// create batch record
 			batchSql := &models.BatchSql{Server: *currentServer,
-				RunningSql: queryResult.CurrentSql}
+				RunningSql:   queryResult.CurrentSql,
+				RepeatXtimes: 1,
+				RepeatEvery:  time.Second * 15,
+			}
 
 			app.batchSQLModel.Insert(batchSql)
 		}
 	}
+
+	go app.servers.Update(currentServer, false)
+
 	// w.Header().Set("Content-Type", "application/json")
 	// w.Write(queryResultsJson)
 	app.writeJSON(w, http.StatusOK, queryResults, nil)

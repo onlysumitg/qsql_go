@@ -12,6 +12,7 @@ var (
 	// Add a new ErrDuplicateEmail error. We'll use this later if a user
 	// tries to signup with an email address that's already in use.
 	ErrDuplicateEmail = errors.New("models: duplicate email")
+	ErrNotFound          = errors.New("models: Not found")
 
 	ErrUserNotFound       = errors.New("models: User not found")
 	ErrServerNotFound     = errors.New("models: Server not found")

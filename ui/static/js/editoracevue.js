@@ -31,13 +31,20 @@
          this.editor.setOption("behavioursEnabled", true);
          this.editor.setOption("wrapBehavioursEnabled", true);
          this.editor.setOption("autoScrollEditorIntoView", true);
+
+         this.editor.setOption("fontFamily", "Roboto Mono");
+         this.editor.setOption("fontSize", "12pt");
+
+
          this.editor.setOption("wrap", true);
          // this.editor.setOption("showGutter", false);
          this.editor.setOption("showPrintMargin", false)
 
          this.editor.getSession().setMode(`ace/mode/${lang}`)
          this.editor.setTheme(`ace/theme/${theme}`)
-         console.log("this.setreadonly" + this.setreadonly)
+
+
+ 
          if (this.setreadonly) {
              this.editor.setReadOnly(true)
          } else {
@@ -54,8 +61,8 @@
          this.editor.commands.addCommand({
              name: 'myCommand',
              bindKey: {
-                 win: 'Ctrl-M',
-                 mac: 'Command-M'
+                 win: 'Ctrl-E',
+                 mac: 'Command-E'
              },
              exec: function (editor) {
                  var currline = editor.getSelectionRange().start.row;

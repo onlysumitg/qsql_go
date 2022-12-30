@@ -1,0 +1,40 @@
+{{define "title"}}
+Query Alias details
+{{end}}
+
+{{define "content"}}
+<div class="px-5">
+    <div class="row">
+        <div class="col" style="padding-bottom: 10px;"><p class="h3">Query Alias Details</p>
+       </div> 
+
+    </div> 
+<table class="table table-bordered table-striped">
+    <tbody>
+        <tr>
+            <td>ID</td>
+            <td>{{.ShortHandQuery.ID}}</td>
+        </tr>
+     
+        <tr>
+            <td>Name</td>
+            <td>{{.ShortHandQuery.Name}}</td>
+        </tr>
+
+
+
+        <tr>
+            <td>Query</td>
+            <td>{{.ShortHandQuery.Sql}}</td>
+        </tr>
+
+   
+    </tbody>
+</table>
+
+<a class="btn btn-primary " href="/queryalias">Back to list</a>
+
+</div>
+
+ 
+{{end}}

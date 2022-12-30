@@ -4,9 +4,12 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
+	"regexp"
 	"strings"
 	"time"
 
+	"github.com/zerobit-tech/godbc"
 	"github.com/zerobit-tech/godbc/database/sql"
 
 	"github.com/google/uuid"
@@ -21,17 +24,25 @@ import (
 // Define a new User type. Notice how the field names and types align
 // with the columns in the database "users" table?
 type Server struct {
-	ID          string    `json:"id" db:"id" form:"id"`
-	Name        string    `json:"server_name" db:"server_name" form:"name"`
-	IP          string    `json:"ip" db:"ip" form:"ip"`
-	Port        uint8     `json:"port" db:"port" form:"port"`
-	Ssl         bool      `json:"ssl" db:"ssl" form:"ssl"`
+	ID   string `json:"id" db:"id" form:"id"`
+	Name string `json:"server_name" db:"server_name" form:"name"`
+	IP   string `json:"ip" db:"ip" form:"ip"`
+	Port uint8  `json:"port" db:"port" form:"port"`
+	Ssl  bool   `json:"ssl" db:"ssl" form:"ssl"`
+
 	UserName    string    `json:"user_name" db:"user_name" form:"user_name"`
 	Password    string    `json:"password" db:"password" form:"password"`
 	WorkLib     string    `json:"worklib" db:"worklib" form:"worklib"`
 	CreatedAt   time.Time `json:"created_at" db:"created_at" form:"-"`
 	UpdatedAt   time.Time `json:"updated_at" db:"updated_at" form:"-"`
 	Connections uint      `json:"connections" db:"connections" form:"connections"`
+	AllowInsert bool      `json:"allowinsert" db:"allowinsert" form:"allowinsert"`
+	AllowUpdate bool      `json:"allowupdate" db:"allowupdate" form:"allowupdate"`
+	AllowDelete bool      `json:"allowdelete" db:"allowdelete" form:"allowdelete"`
+
+	OnHold        bool   `json:"onhold" db:"onhold" form:"onhold"`
+	OnHoldMessage string `json:"onholdmessage" db:"onholdmessage" form:"onholdmessage"`
+
 	validator.Validator
 }
 
@@ -40,16 +51,12 @@ type Server struct {
 // ------------------------------------------------------------
 func (s Server) GetConnectionString() string {
 	driver := "IBM i Access ODBC Driver"
-	connectionString := fmt.Sprintf("DRIVER=%s;SYSTEM=%s; UID=%s;PWD=%s;DBQ=*USRLIBL;UNICODESQL=1;XDYNAMIC=1;EXTCOLINFO=1;PKG=A/DJANGO,2,0,0,1,512;PROTOCOL=TCPIP;NAM=1;CMT=0;", driver, s.IP, s.UserName, s.Password)
-	return connectionString
-}
-
-func (s Server) GetDefaultLimit() uint {
-	defaultLimit := s.Connections
-	if defaultLimit <= 0 {
-		defaultLimit = 10
+	ssl := 0
+	if s.Ssl {
+		ssl = 1
 	}
-	return defaultLimit
+	connectionString := fmt.Sprintf("DRIVER=%s;SYSTEM=%s; UID=%s;PWD=%s;DBQ=*USRLIBL;UNICODESQL=1;XDYNAMIC=1;EXTCOLINFO=1;PKG=A/DJANGO,2,0,0,1,512;PROTOCOL=TCPIP;NAM=1;CMT=0;SSL=%d;ALLOWUNSCHAR=1", driver, s.IP, s.UserName, s.Password, ssl)
+	return connectionString
 }
 
 func (s Server) GetConnectionType() string {
@@ -66,17 +73,32 @@ func (s Server) GetConnectionID() string {
 // ------------------------------------------------------------
 //
 // ------------------------------------------------------------
+func (s Server) ClearCache() {
+	database.ClearCache(s)
+}
+
+// ------------------------------------------------------------
+//
+// ------------------------------------------------------------
 func (s Server) GetConnection() (*sql.DB, error) {
+	if s.OnHold {
+		return nil, fmt.Errorf("Server is on hold due to %s", s.OnHoldMessage)
+	}
+
 	return database.GetConnection(s)
 }
 func (s Server) GetSinglaConnection() (*sql.DB, error) {
+	if s.OnHold {
+		return nil, fmt.Errorf("Server is on hold due to %s", s.OnHoldMessage)
+	}
+
 	return database.GetSingleConnection(s)
 }
 
 // ------------------------------------------------------------
 //
 // ------------------------------------------------------------
-func (s Server) RunQuery(runningSQL *RunningSql) (queryResults []*QueryResult) {
+func (s *Server) RunQuery(runningSQL *RunningSql) (queryResults []*QueryResult) {
 
 	switch runningSQL.StatementType {
 	case "INSERT":
@@ -85,6 +107,13 @@ func (s Server) RunQuery(runningSQL *RunningSql) (queryResults []*QueryResult) {
 		queryResults = s.RunExecuteQuery(runningSQL)
 	case "DELETE":
 		queryResults = s.RunExecuteQuery(runningSQL)
+
+	case "COMMIT":
+		queryResults = s.RunExecuteQuery(runningSQL)
+
+	case "ROLLBACK":
+		queryResults = s.RunExecuteQuery(runningSQL)
+
 	case "CALL":
 		queryResults = s.CallSP(runningSQL)
 	case "@BATCH":
@@ -107,10 +136,26 @@ func (s Server) BatchStatement(runningSQL *RunningSql) (queryResults []*QueryRes
 	column_types := make([]database.ColumnType, 0)
 	runningSQL.LoadMore = false
 
+	column_type := database.ColumnType{
+		Name: "Job",
+	}
+	column_typeID := database.ColumnType{
+		Name: "Job ID",
+	}
+
+	row := make(map[string]interface{})
+	row["Job"] = "Batch job has been submitted."
+	row["Job ID"] = runningSQL.ID
+
+	return_rows = append(return_rows, row)
+	column_types = append(column_types, column_type)
+
+	column_types = append(column_types, column_typeID)
+
 	queryResult := &QueryResult{CurrentSql: *runningSQL,
 		Rows: return_rows, Columns: column_types,
 		Heading:      "Result",
-		FlashMessage: "Batch job has been submitted",
+		FlashMessage: "",
 	}
 
 	queryResults = append(queryResults, queryResult)
@@ -122,20 +167,90 @@ func (s Server) BatchStatement(runningSQL *RunningSql) (queryResults []*QueryRes
 // ------------------------------------------------------------
 //
 // ------------------------------------------------------------
-func (s Server) RunExecuteQuery(runningSQL *RunningSql) (queryResults []*QueryResult) {
+func (s *Server) isAllowed(runningSQL *RunningSql) bool {
+	switch runningSQL.StatementType {
+	case "INSERT":
+		return s.AllowInsert
+	case "UPDATE":
+		return s.AllowUpdate
+	case "DELETE":
+		return s.AllowDelete
+
+	default:
+		return true
+	}
+
+}
+
+// ------------------------------------------------------------
+//
+// ------------------------------------------------------------
+func (s *Server) IsValid(runningSQL *RunningSql) error {
+
+	if s.OnHold {
+		return fmt.Errorf("Server is on hold due to %s", s.OnHoldMessage)
+	}
+
+	switch runningSQL.StatementType {
+
+	case "UPDATE": // must have a where clause
+		match, err := regexp.MatchString(`(?mi)\s+where\s+`, runningSQL.RunningNow)
+
+		if err != nil {
+			match = false
+		}
+		if !match {
+			return errors.New("Where clause is required for Update statements")
+
+		}
+
+	case "DELETE": // must have a where clause
+		_, err := regexp.MatchString(`(?mi)\s+where\s+`, runningSQL.RunningNow)
+		if err != nil {
+			return errors.New("Where clause is required for Delete statements")
+		}
+
+	}
+	return nil
+}
+
+// ------------------------------------------------------------
+//
+// ------------------------------------------------------------
+func (s *Server) RunExecuteQuery(runningSQL *RunningSql) (queryResults []*QueryResult) {
 	return_rows := make([]map[string]interface{}, 0)
 	column_types := make([]database.ColumnType, 0)
 
-	conn, err_connection := s.GetConnection()
+	if !s.isAllowed(runningSQL) {
+		errorMessge := fmt.Sprintf("%s not allowed. Please update server %s to allow %s.", runningSQL.StatementType, s.Name, runningSQL.StatementType)
+		queryResults = append(queryResults, &QueryResult{Rows: return_rows, Columns: column_types, Heading: "Not Allowed", ErrorMessage: errorMessge})
 
-	if err_connection != nil {
-		queryResults = append(queryResults, &QueryResult{Rows: return_rows, Columns: column_types, Heading: "Connection Error", ErrorMessage: err_connection.Error()})
+		return
+	}
+
+	notvalidErr := s.IsValid(runningSQL)
+	if notvalidErr != nil {
+		queryResults = append(queryResults, &QueryResult{Rows: return_rows, Columns: column_types, Heading: "Onhold", ErrorMessage: notvalidErr.Error()})
+
+		return
+	}
+
+	conn, errConnection := s.GetConnection()
+
+	if errConnection != nil {
+		queryResults = append(queryResults, &QueryResult{Rows: return_rows, Columns: column_types, Heading: "Connection Error", ErrorMessage: errConnection.Error()})
 
 		return
 	}
 
 	res, err_query := conn.Exec(runningSQL.RunningNow) //"select * from sumitg1/qsqltest")
 	if err_query != nil {
+		var odbcError *godbc.Error
+
+		if errors.As(err_query, &odbcError) {
+			s.UpdateAfterError(odbcError)
+		}
+
 		queryResults = append(queryResults, &QueryResult{Rows: return_rows, Columns: column_types, Heading: "Query Error", ErrorMessage: err_query.Error()})
 		return
 	}
@@ -146,7 +261,6 @@ func (s Server) RunExecuteQuery(runningSQL *RunningSql) (queryResults []*QueryRe
 		return
 	}
 	runningSQL.LoadMore = false
-	fmt.Println(count)
 	// return_rows, column_types = database.ToMap(rows_to_process, 10, runningSQL.ScrollTo)
 	column_type := database.ColumnType{
 		Name: "Rows Impacted",
@@ -167,9 +281,36 @@ func (s Server) RunExecuteQuery(runningSQL *RunningSql) (queryResults []*QueryRe
 // ------------------------------------------------------------
 //
 // ------------------------------------------------------------
-func (s Server) RunSelectQuery(runningSQL *RunningSql) (queryResults []*QueryResult) {
+func (s *Server) UpdateAfterError(odbcError *godbc.Error) {
+
+	if strings.EqualFold(odbcError.APIName, "SQLDriverConnect") {
+		for _, diag := range odbcError.Diag {
+			switch diag.NativeError {
+			case 8001:
+				s.OnHold = true
+				s.OnHoldMessage = "User name does not exist."
+			case 8002:
+				s.OnHold = true
+				s.OnHoldMessage = "Incorrect password"
+			}
+		}
+	}
+
+}
+
+// ------------------------------------------------------------
+//
+// ------------------------------------------------------------
+func (s *Server) RunSelectQuery(runningSQL *RunningSql) (queryResults []*QueryResult) {
 	return_rows := make([]map[string]interface{}, 0)
 	column_types := make([]database.ColumnType, 0)
+
+	notvalidErr := s.IsValid(runningSQL)
+	if notvalidErr != nil {
+		queryResults = append(queryResults, &QueryResult{Rows: return_rows, Columns: column_types, Heading: "Onhold", ErrorMessage: notvalidErr.Error()})
+
+		return
+	}
 
 	rows_to_process, ok := runningSQLQueryMap[runningSQL.ID]
 
@@ -180,8 +321,16 @@ func (s Server) RunSelectQuery(runningSQL *RunningSql) (queryResults []*QueryRes
 			queryResults = append(queryResults, &QueryResult{Rows: return_rows, Columns: column_types, Heading: "Connection Error", ErrorMessage: err_connection.Error()})
 			return
 		}
- 		rows, err_query := conn.Query(runningSQL.RunningNow) //"select * from sumitg1/qsqltest")
+		rows, err_query := conn.Query(runningSQL.RunningNow) //"select * from sumitg1/qsqltest")
 		if err_query != nil {
+			var odbcError *godbc.Error
+
+			log.Printf(" connetion errror 2>>>>>>>>>>>>%t", err_query)
+			if errors.As(err_query, &odbcError) {
+
+				s.UpdateAfterError(odbcError)
+			}
+
 			queryResults = append(queryResults, &QueryResult{Rows: return_rows, Columns: column_types, Heading: "Query Error", ErrorMessage: err_query.Error()})
 			return
 		}
@@ -190,21 +339,34 @@ func (s Server) RunSelectQuery(runningSQL *RunningSql) (queryResults []*QueryRes
 
 	}
 
-	return_rows, column_types = database.ToMap(rows_to_process, 10, runningSQL.ScrollTo)
+	return_rows, column_types = database.ToMap(rows_to_process, runningSQL.ResultSetSize, runningSQL.ScrollTo)
 
 	recordsProcessed := len(return_rows)
-	if recordsProcessed >= 10 {
+	if recordsProcessed >= runningSQL.ResultSetSize {
 		runningSQL.LoadMore = true
 		runningSQLQueryMap[runningSQL.ID] = rows_to_process
 	}
 
-	if runningSQL.LoadMore && len(return_rows) < int(s.GetDefaultLimit()) {
+	if runningSQL.LoadMore && len(return_rows) < runningSQL.ResultSetSize {
+		delete(runningSQLQueryMap, runningSQL.ID)
+		defer rows_to_process.Close()
+		runningSQL.LoadMore = false
+	}
+
+	if !runningSQL.LimitRecods {
+		delete(runningSQLQueryMap, runningSQL.ID)
+		defer rows_to_process.Close()
 		runningSQL.LoadMore = false
 	}
 
 	runningSQL.ScrollTo += recordsProcessed
 
-	queryResults = append(queryResults, &QueryResult{Rows: return_rows, Columns: column_types, Heading: "Result"})
+	heading := runningSQL.Heading
+	if heading == "" {
+		heading = "Result"
+	}
+
+	queryResults = append(queryResults, &QueryResult{Rows: return_rows, Columns: column_types, Heading: heading})
 
 	return
 
@@ -229,7 +391,7 @@ func (m *ServerModel) getTableName() []byte {
 func (m *ServerModel) Insert(u *Server) (string, error) {
 	var id string = uuid.NewString()
 	u.ID = id
-	err := m.Update(u)
+	err := m.Update(u, false)
 
 	return id, err
 }
@@ -238,13 +400,23 @@ func (m *ServerModel) Insert(u *Server) (string, error) {
 //
 // -----------------------------------------------------------------
 // We'll use the Insert method to add a new record to the "users" table.
-func (m *ServerModel) Update(u *Server) error {
+func (m *ServerModel) Update(u *Server, clearCache bool) error {
 	err := m.DB.Update(func(tx *bolt.Tx) error {
 		bucket, err := tx.CreateBucketIfNotExists(m.getTableName())
 		if err != nil {
 			return err
 		}
 		u.Name = strings.ToUpper(strings.TrimSpace(u.Name))
+
+		if !u.OnHold {
+			u.OnHoldMessage = ""
+		} else {
+			go u.ClearCache()
+		}
+
+		if clearCache {
+			go u.ClearCache()
+		}
 
 		buf, err := json.Marshal(u)
 		if err != nil {
@@ -328,7 +500,7 @@ func (m *ServerModel) DuplicateName(serverToCheck *Server) bool {
 func (m *ServerModel) Get(id string) (*Server, error) {
 
 	if id == "" {
-		return nil, errors.New("blank id not allowed")
+		return nil, errors.New("Server blank id not allowed")
 	}
 	var serverJSON []byte // = make([]byte, 0)
 

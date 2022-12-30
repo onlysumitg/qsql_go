@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"sync"
-	"time"
 
 	"github.com/zerobit-tech/godbc/database/sql"
 )
@@ -54,7 +53,7 @@ func processRow(scans []interface{}, fields []string) map[string]interface{} {
 	row := make(map[string]interface{})
 	for i, v := range scans {
 
-		// fmt.Println(">>>>>>>", fields[i], " type = ", reflect.TypeOf(v), reflect.ValueOf(v).Kind())
+		//fmt.Println(">>>>>>>", fields[i], " type = ", reflect.TypeOf(v), reflect.ValueOf(v).Kind())
 
 		switch v.(type) {
 		case []uint, []uint8:
@@ -79,7 +78,6 @@ func processRow(scans []interface{}, fields []string) map[string]interface{} {
 // -----------------------------------------------------------------
 func ToMap(rows *sql.Rows, maxRows int, scrollTo int) (return_rows []map[string]interface{}, column_types []ColumnType) {
 	fields, _ := rows.Columns()
-	log.Println("p1.3.1", time.Now())
 
 	colch := make(chan []ColumnType)
 	defer close(colch)
@@ -88,13 +86,9 @@ func ToMap(rows *sql.Rows, maxRows int, scrollTo int) (return_rows []map[string]
 	wg.Add(1)
 	go prepareColumnTypes(*rows, &wg, colch)
 
-	log.Println("p1.3.2", time.Now())
-
-	fmt.Println("rows.JumpToRow2(3)", rows.JumpToRow2(scrollTo))
+	//fmt.Println("ToMap rows.JumpToRow2(3)", rows.JumpToRow2(scrollTo))
 	for rows.Next() {
 		//rows.JumpToRow(3)
-
-		log.Println("p1.3.2.1", time.Now())
 
 		scans := make([]interface{}, len(fields))
 
@@ -102,22 +96,20 @@ func ToMap(rows *sql.Rows, maxRows int, scrollTo int) (return_rows []map[string]
 			scans[i] = &scans[i]
 		}
 
-		rows.Scan(scans...)
-
-		log.Println("p1.3.2.2", time.Now())
+		err := rows.Scan(scans...)
+		if err != nil {
+			log.Println("ToMap Scan....:", err.Error())
+		}
 
 		return_rows = append(return_rows, processRow(scans, fields))
-		log.Println("p1.3.2.3", time.Now())
 		if maxRows > 0 && len(return_rows) >= maxRows {
 			break
 		}
 	}
 
-	log.Println("p1.3.3", time.Now())
 	wg.Wait()
 
 	column_types = <-colch
-	log.Println("p1.3.4", time.Now())
 
 	return
 }
@@ -152,11 +144,10 @@ func processRow2(scans []interface{}, fields []string, rowch chan<- map[string]i
 }
 
 // -----------------------------------------------------------------
-//
+// NOT in USE
 // -----------------------------------------------------------------
 func ToMap2(rows *sql.Rows, maxRows int, scrollTo int) (return_rows []map[string]interface{}, column_types []ColumnType) {
 	fields, _ := rows.Columns()
-	log.Println("p1.3.1", time.Now())
 
 	colch := make(chan []ColumnType)
 	defer close(colch)
@@ -165,18 +156,15 @@ func ToMap2(rows *sql.Rows, maxRows int, scrollTo int) (return_rows []map[string
 	wg.Add(1)
 	go prepareColumnTypes(*rows, &wg, colch)
 
-	log.Println("p1.3.2", time.Now())
 	rowch := make(chan map[string]interface{})
 	defer close(rowch)
 
 	rowCount := 0
 
-	fmt.Println("rows.JumpToRow2(3)", rows.JumpToRow2(scrollTo))
+	fmt.Println("ToMap2 rows.JumpToRow2(3)", rows.JumpToRow2(scrollTo))
 
 	for rows.Next() {
 		//rows.JumpToRow(3)
-
-		log.Println("p1.3.2.1", time.Now())
 
 		rowCount += 1
 		scans := make([]interface{}, len(fields))
@@ -187,20 +175,15 @@ func ToMap2(rows *sql.Rows, maxRows int, scrollTo int) (return_rows []map[string
 
 		rows.Scan(scans...)
 
-		log.Println("p1.3.2.2", time.Now())
-
 		go processRow2(scans, fields, rowch, &wg)
-		log.Println("p1.3.2.3", time.Now())
 		if rowCount >= maxRows {
 			break
 		}
 	}
 
-	log.Println("p1.3.3", time.Now())
 	wg.Wait()
 
 	column_types = <-colch
-	log.Println("p1.3.4", time.Now())
 
 	for i := 1; i <= rowCount; i++ {
 		row := <-rowch
@@ -208,8 +191,6 @@ func ToMap2(rows *sql.Rows, maxRows int, scrollTo int) (return_rows []map[string
 		return_rows = append(return_rows, row)
 
 	}
-
-	log.Println("p1.3.5", time.Now())
 
 	return
 }

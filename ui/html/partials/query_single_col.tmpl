@@ -1,5 +1,5 @@
 {{define "query_single_col"}}
-<div v-if="showSinglColumn" class="modal right fade in" id="myModal3" tabindex="-1" style="display:block" role="dialog"
+<div v-if="showSinglColumn" class="modal right fade   float-right" :class="{  show: showSinglColumn }" id="myModal3" tabindex="-1" style="display:block" role="dialog"
 aria-labelledby="myModalLabel2">
 
 <div class="modal-mask" @click="showSinglColumn = false">

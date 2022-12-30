@@ -3,7 +3,6 @@ package models
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"log"
 	"regexp"
 	"strings"
@@ -20,7 +19,7 @@ import (
 type SavedQuery struct {
 	ID                  string        `json:"id" db:"id" form:"id"`
 	Name                string        `json:"name" db:"name" form:"name"`
-	Catagory            string        `json:"catagory" db:"catagory" form:"catagory"`
+	Category            string        `json:"category" db:"category" form:"category"`
 	Sql                 string        `json:"sql" db:"sql" form:"sql"`
 	Fields              []*QueryField `json:"fields" db:"-" form:"-"`
 	validator.Validator               // this contains the fielderror
@@ -69,11 +68,34 @@ func findQueryFields(str string) []*QueryField {
 	var re = regexp.MustCompile(`(?m)({{.*?}})`)
 
 	fields := make([]*QueryField, 0)
-	for i, match := range re.FindAllString(str, -1) {
-		fields = append(fields, fieldToQueryField(match))
-		fmt.Println(match, "found at index", i)
+	fieldNames := make([]string, 0)
+
+	for _, match := range re.FindAllString(str, -1) {
+		field := fieldToQueryField(match)
+
+		if !isInList(fieldNames, field.Name) { // not found
+			fieldNames = append(fieldNames, field.Name)
+			fields = append(fields, field)
+		}
+
+		//fmt.Println(match, "found at index", i)
 	}
 	return fields
+}
+
+// -----------------------------------------------------------------
+//
+//	TODO --> improve search
+//
+// -----------------------------------------------------------------
+func isInList(list []string, search string) bool {
+	for _, val := range list {
+		if strings.EqualFold(val, search) {
+			return true
+		}
+	}
+
+	return false
 }
 
 // -----------------------------------------------------------------
@@ -87,7 +109,7 @@ func fieldToQueryField(str string) *QueryField {
 	fieldNameValue := strings.Split(field, ":")
 
 	queryField := QueryField{ID: str}
-	queryField.Name = fieldNameValue[0]
+	queryField.Name = strings.Trim(fieldNameValue[0], " ")
 
 	if len(fieldNameValue) > 1 {
 		queryField.DefaultValue = fieldNameValue[1]
@@ -112,7 +134,7 @@ func (m *SavedQueryModel) getTableName() []byte {
 //
 // -----------------------------------------------------------------
 // We'll use the Insert method to add a new record to the "users" table.
-func (m *SavedQueryModel) Insert(u *SavedQuery) (string, error) {
+func (m *SavedQueryModel) Save(u *SavedQuery) (string, error) {
 	var id string
 	err := m.DB.Update(func(tx *bolt.Tx) error {
 		bucket, err := tx.CreateBucketIfNotExists(m.getTableName())
@@ -120,8 +142,12 @@ func (m *SavedQueryModel) Insert(u *SavedQuery) (string, error) {
 			return err
 		}
 		u.Name = strings.ToUpper(strings.TrimSpace(u.Name))
-		u.ID = uuid.NewString()
-		u.Catagory = strings.ToUpper(u.Catagory)
+
+		// generate new ID if id is blank else use the old one to update
+		if u.ID == "" {
+			u.ID = uuid.NewString()
+		}
+		u.Category = strings.ToUpper(strings.TrimSpace(u.Category))
 		id = u.ID
 		// Marshal user data into bytes.
 		buf, err := json.Marshal(u)
@@ -205,7 +231,7 @@ func (m *SavedQueryModel) DuplicateName(name string) bool {
 func (m *SavedQueryModel) Get(id string) (*SavedQuery, error) {
 
 	if id == "" {
-		return nil, errors.New("blank id not allowed")
+		return nil, errors.New("SavedQuery blank id not allowed")
 	}
 	var savedQueryJSON []byte // = make([]byte, 0)
 

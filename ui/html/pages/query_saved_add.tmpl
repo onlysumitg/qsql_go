@@ -22,7 +22,7 @@ Run SQL
 
       {{template "query_save_form" .}}
 
-      <editor name="sql" editor-id="editorA" :key="id"  :content="contentA" v-on:change-content="changeContentA" v-on:run-sql="runSQL">
+      <editor name="sql" editor-id="editorB" :key="id"  :content="contentB" v-on:change-content="changeContentB" v-on:run-sql="runSQL">
       </editor>
 
 
@@ -36,7 +36,7 @@ Run SQL
 
 
 
-  <div id="rightone" class=" maxheight72">
+  <div id="rightone" class=" maxheight72" style="overflow:hidden;">
     {{template "query_result" .}}
      </div>
 
@@ -44,10 +44,23 @@ Run SQL
 
 </div>
 
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js" type="text/javascript"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js" type="text/javascript"></script>
 
+<script>
+ var csrftoken = '{{.CSRFToken}}'
+ var splitmode = 2
+ var contentB = '{{.Form.Sql}}'
+
+</script>
+
+
+
+ 
+{{end}}
+
+
+{{define "aftercontent"}}
+
+ 
 
 <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12" type="text/javascript"></script>
 <script src="https://ajaxorg.github.io/ace-builds/src-min-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
@@ -57,18 +70,12 @@ Run SQL
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/split.js/1.6.0/split.min.js" type="text/javascript"></script>
 <script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
-
-
-<script>
- var csrftoken = '{{.CSRFToken}}'
- var splitmode = 2
-
-</script>
-
+ 
+ 
 
 <script src="/static/js/textformat.js" type="text/javascript"></script>
 <script src="/static/js/editoracevue.js" type="text/javascript"></script>
 <script src="/static/js/query.js" type="text/javascript"></script>
 <script src="/static/js/autoload.js" type="text/javascript"></script>
- 
+
 {{end}}

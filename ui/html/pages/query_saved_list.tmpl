@@ -4,20 +4,23 @@ Saved Sqls
 
 {{define "content"}}
 <br />
-<div class="row">
-  <div class="col-10">
-    <p class="h3">Saved SQLs</p>
-  </div>
+<div class="px-5">
 
-  <div class="col-2"><a href="/savesql/add">+Add</a></div>
+<div class="row">
+ 
+
+
+  <div class="col" style="padding-bottom: 10px;"><p class="h3">Saved Queries <a class="btn btn-primary" href="/savesql/add">+Add</a></p>
+    <small class="text-muted">To save the query with {{"{{"}}parameter{{"}}"}} or {{"{{"}}paramter:defaultValue{{"}}"}}. To run a saved query go to <a href="savesql/run">Run</a> </small>
 </div>
 
+</div>
 
-<table class="table table-bordered table-striped">
+<table id="savedqlist" class="table table-bordered table-striped">
   <thead>
     <tr>
+      <th>Category</th>
       <th>Name</th>
-      <th>Catagory</th>
       <th>SQL</th>
       <th>Options</th>
     </tr>
@@ -26,14 +29,13 @@ Saved Sqls
     {{if .SavesQueries}}
     {{range .SavesQueries}}
     <tr>
-      <td><a href=' '>{{.Name}}</a></td>
-      <td>{{.Catagory}}</td>
+      <td>{{.Category}}</td>
+      <td>{{.Name}}</td>
       <td>{{.Sql}}</td>
-      <td>
-        <a href=' '>Select</a>
-
-        <button class="btn btn">Edit</button>
-        <a href='/savesql/delete/{{.ID}}'>Delete</a>
+      <td nowrap>
+ 
+        <a class="btn btn-info" href='/savesql/update/{{.ID}}'>Edit</a>
+        <a class="btn btn-danger" href='/savesql/delete/{{.ID}}'>Delete</a>
 
       </td>
 
@@ -41,11 +43,30 @@ Saved Sqls
     {{end}}
 
     {{else}}
-    <tr><td>No Data found.</td></tr>
-    {{end}}
+     {{end}}
   </tbody>
 </table>
+</div>
 
 
+{{end}}
 
+
+{{define "aftercontent"}}
+
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.1/css/jquery.dataTables.css">
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.13.1/js/jquery.dataTables.js"></script>
+
+<script>
+  
+    $(document).ready( function () {
+      $('#savedqlist').DataTable(
+        {
+              "language": {
+                "emptyTable": "No results found"
+              }
+          }
+      );
+  } );
+</script>
 {{end}}
