@@ -26,7 +26,7 @@
   </div>
 
 
-  <div :key="resulttable2key" id="resulttable2" style="max-width:100%; padding-left: 25px;" class="row maxheightRemaining">
+  <div :key="resulttable2key" onscroll="handler()"  id="resulttable2" style="max-width:100%; padding-left: 25px;" class="row maxheightRemaining">
     <!-- tab content-->
 
     <div class="tab-content">
@@ -50,11 +50,11 @@
 
         <!-- result table-->
 
-        <div id="resulttable3" class="" v-else>
-          <table class="table table-hover table-bordered">
+        <div   id="resulttable3" class="" v-else>
+          <table   class="table table-hover table-bordered" style="position: relative;">
             <thead class="thead-light">
               <tr style="background-color: #d6e9c6;">
-                <th nowrap>#</th>
+                <th nowrap class="my-sticky-top">#</th>
                 <th nowrap v-for='(column, col_index)  in sqlresult.Columns' class="my-sticky-top">
                   [[column.Name]]
 
@@ -77,18 +77,18 @@
               </tr>
 
             </thead>
-            <tbody>
-              <tr @contextmenu="showSingleRow($event,sqlresult,row_index)" v-for='(row, row_index)  in sqlresult.Rows'>
+            <tbody   >
+              <tr    @contextmenu="showSingleRow($event,sqlresult,row_index)" v-for='(row, row_index)  in sqlresult.Rows'>
                 <td nowrap>[[row_index + 1]]</td>
                 <td nowrap v-for='(column, col_index)  in sqlresult.Columns' class="  ">
-                  [[row[column.Name] ]]</td>
+                  [[row[column.IndexName] ]]</td>
               </tr>
             </tbody>
           </table>
         </div>
 
 
-        <button id="loadmore" class="btn btn-success" @click="loadMore(sqlresult)"
+        <button   class="loadmore btn btn-success" @click="loadMore(sqlresult)"
           v-if="sqlresult.CurrentSql.LoadMore && !processing"> Load More </button>
         <p v-if="!sqlresult.CurrentSql.LoadMore && !processing">End of data.</p>
           <br>

@@ -61,4 +61,7 @@ func main() {
 	// go openbrowser(url)
 	err = server.ListenAndServe()
 	log.Fatal(err)
+
+	// mux := http.NewServeMux()
+	// mux.Handle("/", http.HandlerFunc(home))
 }

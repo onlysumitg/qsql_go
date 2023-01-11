@@ -11,7 +11,7 @@ import (
 // -----------------------------------------------------------------
 //
 // -----------------------------------------------------------------
-func prepareColumnType(sql_column sql.ColumnType) (column_type ColumnType) {
+func prepareColumnType(sql_column sql.ColumnType, index int) (column_type ColumnType) {
 
 	name := sql_column.Name()
 	length, hasLength := sql_column.Length()
@@ -19,7 +19,9 @@ func prepareColumnType(sql_column sql.ColumnType) (column_type ColumnType) {
 	nullable, hasNullable := sql_column.Nullable()
 	databaseType := sql_column.DatabaseTypeName()
 
-	column_type = ColumnType{Name: name,
+	column_type = ColumnType{
+		IndexName:         fmt.Sprintf("%d_%s", index, name),
+		Name:              name,
 		Length:            length,
 		HasLength:         hasLength,
 		Precision:         precision,
@@ -39,8 +41,8 @@ func prepareColumnTypes(rows sql.Rows, wg *sync.WaitGroup, colch chan<- []Column
 	column_types_p, _ := rows.ColumnTypes()
 
 	column_types := make([]ColumnType, 0)
-	for _, sql_column := range column_types_p {
-		column_types = append(column_types, prepareColumnType(*sql_column))
+	for index, sql_column := range column_types_p {
+		column_types = append(column_types, prepareColumnType(*sql_column, index))
 	}
 	wg.Done()
 	colch <- column_types
@@ -77,7 +79,13 @@ func processRow(scans []interface{}, fields []string) map[string]interface{} {
 //
 // -----------------------------------------------------------------
 func ToMap(rows *sql.Rows, maxRows int, scrollTo int) (return_rows []map[string]interface{}, column_types []ColumnType) {
-	fields, _ := rows.Columns()
+	fieldsX, _ := rows.Columns()
+	// fmt.Println("fields >>>", fieldsX)
+
+	fields := make([]string, 0)
+	for i, f := range fieldsX {
+		fields = append(fields, fmt.Sprintf("%d_%s", i, f))
+	}
 
 	colch := make(chan []ColumnType)
 	defer close(colch)

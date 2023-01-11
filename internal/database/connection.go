@@ -10,7 +10,8 @@ import (
 )
 
 type ColumnType struct {
-	Name string
+	IndexName string
+	Name      string
 
 	HasNullable       bool
 	HasLength         bool

@@ -47,6 +47,11 @@ func MustStartwith(value string, prefix string) bool {
 	return strings.HasPrefix(strings.ToUpper(strings.Trim(value, " ")), strings.ToUpper(strings.Trim(prefix, " ")))
 }
 
+// Cannot be
+func CanNotBe(value string, prefix string) bool {
+	return !strings.EqualFold(strings.ToUpper(strings.Trim(value, " ")), strings.ToUpper(strings.Trim(prefix, " ")))
+}
+
 // Must start with
 func MustNotContainBlanks(value string) bool {
 	return !strings.Contains(value, " ")

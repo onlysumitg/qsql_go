@@ -1,6 +1,12 @@
 {{define "query_save_form"}}
 <div style="padding:25px">
   <form action="/savesql/add" method="POST">
+    <div class="row">
+      <div class="col-8"  style="padding-bottom: 10px;"><p class="h5">Saved query</p></div>
+      <div class="col-2"  style="padding-bottom: 10px;">        <button type="submit" class="btn btn-primary">Save</button>
+      </div>
+
+      </div>
 
     <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
     <input name="id"   type="hidden" value="{{.Form.ID}}"></input>
@@ -38,10 +44,8 @@
       {{end}}
 
       </div>
-
-      <br />
-      <button type="submit" class="btn btn-primary">Save</button>
-   
+ 
+    
   </form>
 </div>
 {{end}}

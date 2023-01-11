@@ -119,7 +119,6 @@ func PrepareSQLToRun(runningSQL *RunningSql) {
 		runningSQL.Sql = runningSQL.RunningNow // 2nd time it will work for actual sql type
 
 	default:
-
 		if strings.HasPrefix(finalSQL, "@") {
 			for key, value := range QueryMap {
 				if strings.EqualFold(key, finalSQL) {

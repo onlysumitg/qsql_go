@@ -122,6 +122,8 @@ func (s *Server) RunQuery(runningSQL *RunningSql) (queryResults []*QueryResult) 
 	default:
 		queryResults = s.RunSelectQuery(runningSQL)
 	}
+
+	
 	for _, queryResult := range queryResults {
 		queryResult.CurrentSql = *runningSQL
 	}

@@ -95,6 +95,9 @@ func (app *application) ShorthandQueryAddPost(w http.ResponseWriter, r *http.Req
 	shorthandQuery.CheckField(!app.shorthandQueries.DuplicateName(&shorthandQuery), "name", "Duplicate Name")
 
 	shorthandQuery.CheckField(validator.MustStartwith(shorthandQuery.Name, "@"), "name", "Must start with @")
+	shorthandQuery.CheckField(validator.CanNotBe(shorthandQuery.Name, "@Batch"), "name", "@Batch is not allowed")
+	shorthandQuery.CheckField(validator.CanNotBe(shorthandQuery.Name, "@heading"), "name", "@Heading is not allowed")
+
 	shorthandQuery.CheckField(validator.MustNotContainBlanks(shorthandQuery.Name), "name", "Spaces are not allowed")
 
 	shorthandQuery.CheckField(validator.NotBlank(shorthandQuery.Name), "name", "This field cannot be blank")

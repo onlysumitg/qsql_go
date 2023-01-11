@@ -11,26 +11,15 @@
 
 
  function handler() {
-     const el2 = document.getElementById('loadmore')
-     console.log("calliong hnadler 2")
+    let array1 = document.getElementsByClassName('loadmore')
+    //  const el2 = document.getElementById('loadmore')
+    //  console.log("calliong hnadler 2")
+    for (const el2 of array1) {
+        if (isElementInViewport(el2)) { el2.click();}
+    }
 
-
-     if (typeof (el2) != 'undefined' && el2 != null) {
-
-         console.log("calliong hnadler " + el2 + " " + isElementInViewport(el2))
-
-         if (isElementInViewport(el2)) {
-
-             el2.click();
-
-         }
-     }
+   
+    
  }
 
- $(document).ready(function () {
-     console.log("ready! autoload");
-     document.getElementById("resulttable2").addEventListener("scroll", handler);
-
-
-
- });
+ 

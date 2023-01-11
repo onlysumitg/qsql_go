@@ -33,7 +33,7 @@
          this.editor.setOption("autoScrollEditorIntoView", true);
 
          this.editor.setOption("fontFamily", "Roboto Mono");
-         this.editor.setOption("fontSize", "12pt");
+         this.editor.setOption("fontSize", "11pt");
 
 
          this.editor.setOption("wrap", true);
