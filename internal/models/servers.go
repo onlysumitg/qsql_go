@@ -123,7 +123,6 @@ func (s *Server) RunQuery(runningSQL *RunningSql) (queryResults []*QueryResult) 
 		queryResults = s.RunSelectQuery(runningSQL)
 	}
 
-	
 	for _, queryResult := range queryResults {
 		queryResult.CurrentSql = *runningSQL
 	}
@@ -139,10 +138,12 @@ func (s Server) BatchStatement(runningSQL *RunningSql) (queryResults []*QueryRes
 	runningSQL.LoadMore = false
 
 	column_type := database.ColumnType{
-		Name: "Job",
+		IndexName: "Job",
+		Name:      "Job",
 	}
 	column_typeID := database.ColumnType{
-		Name: "Job ID",
+		IndexName: "Job ID",
+		Name:      "Job ID",
 	}
 
 	row := make(map[string]interface{})
@@ -265,6 +266,7 @@ func (s *Server) RunExecuteQuery(runningSQL *RunningSql) (queryResults []*QueryR
 	runningSQL.LoadMore = false
 	// return_rows, column_types = database.ToMap(rows_to_process, 10, runningSQL.ScrollTo)
 	column_type := database.ColumnType{
+		IndexName: "Rows Impacted",
 		Name: "Rows Impacted",
 	}
 
