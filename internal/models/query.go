@@ -130,6 +130,8 @@ func PrepareSQLToRun(runningSQL *RunningSql) {
 
 		runningSQL.StatementType = "OTHER"
 		runningSQL.RunningNow = runningSQL.Sql
+		PrepareSQLToRun(runningSQL)
+
 	}
 
 }
