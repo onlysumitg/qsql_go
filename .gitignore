@@ -1,4 +1,5 @@
 *.db
+*.xlsx
 internal.db
 
 build/

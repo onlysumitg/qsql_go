@@ -1,9 +1,14 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"html/template"
 	"net/http"
+	"time"
+
+	"github.com/360EntSecGroup-Skylar/excelize"
+	"github.com/go-chi/chi/v5"
 )
 
 func (app *application) langingPage(w http.ResponseWriter, r *http.Request) {
@@ -91,4 +96,36 @@ func (app *application) templatesAdvance(w http.ResponseWriter, r *http.Request)
 func downloadFileHandler(w http.ResponseWriter, r *http.Request) {
 	// need to use filepath.Clean() if download path contains any value based on user input
 	http.ServeFile(w, r, "./ui/static/download.zip")
+
+}
+
+// ------------------------------------------------------
+// download file
+// ------------------------------------------------------
+func downloadFileInMemoryHandler(w http.ResponseWriter, r *http.Request) {
+	xlsx := excelize.NewFile()
+	xlsx.NewSheet("Sheet1")
+	xlsx.SetCellValue("Sheet1", "A2", "Hello world.")
+	var b bytes.Buffer
+
+	xlsx.Write(&b)
+
+	downloadName := time.Now().UTC().Format("data-20060102150405.xlsx")
+
+	w.Header().Set("Content-Description", "File Transfer")                      // can be used multiple times
+	w.Header().Set("Content-Disposition", "attachment; filename="+downloadName) // can be used multiple times
+	w.Header().Set("Content-Type", "application/octet-stream")
+
+	w.Write(b.Bytes())
+}
+
+// ------------------------------------------------------
+// download file
+// ------------------------------------------------------
+func downloadExcelHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Println(">>>>>>>>>>>>>>>>>>> downloadexcel >>>>>>>>>>>>>>>>>")
+	// need to use filepath.Clean() if download path contains any value based on user input
+	id := chi.URLParam(r, "id")
+	http.ServeFile(w, r, fmt.Sprintf("./downloads/%s", id))
+
 }

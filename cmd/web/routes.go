@@ -77,6 +77,9 @@ func addDummyRoutes(app *application, router *chi.Mux) {
 	router.Get("/helloworld", app.helloworld)
 	router.Get("/advaancetemplate", app.templatesAdvance)
 	router.Get("/download", downloadFileHandler)
+	router.Get("/downloadmm", downloadFileInMemoryHandler)
+	router.Get("/downloadexcel/{id}", downloadExcelHandler)
+
 	router.Get("/template", templates)
 }
 

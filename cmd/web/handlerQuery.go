@@ -144,8 +144,9 @@ func (app *application) RunQueryPostAsync(w http.ResponseWriter, r *http.Request
 	queryResults := models.ProcessSQLStatements(request.SQLToRun, currentServer)
 
 	for _, queryResult := range queryResults {
-		if queryResult.CurrentSql.StatementType == "@BATCH" {
 
+		switch {
+		case queryResult.CurrentSql.StatementType == "@BATCH":
 			// create batch record
 			batchSql := &models.BatchSql{Server: *currentServer,
 				RunningSql:   queryResult.CurrentSql,
@@ -154,7 +155,20 @@ func (app *application) RunQueryPostAsync(w http.ResponseWriter, r *http.Request
 			}
 
 			app.batchSQLModel.Insert(batchSql)
+
+			// case queryResult.CurrentSql.StatementType == "@DOWNLOAD":
+			// 	fmt.Println(">>>>>>>>>>>>>>>>>>>>>>>>>>>.  DOWNLOASINF >>>>>>>>>>>>>>>>>>>>>>>>")
+
+			// 	downloadName := time.Now().UTC().Format("data-20060102150405.xlsx")
+			// 	w.Header().Set("Content-Description", "File Transfer")                      // can be used multiple times
+			// 	w.Header().Set("Content-Disposition", "attachment; filename="+downloadName) // can be used multiple times
+			// 	w.Header().Set("Content-Type", "application/octet-stream")
+
+			// 	w.Write(queryResult.ToExcel())
+
+			// 	return
 		}
+
 	}
 
 	go app.servers.Update(currentServer, false)

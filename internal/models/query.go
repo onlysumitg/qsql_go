@@ -7,9 +7,11 @@ import (
 	"regexp"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/zerobit-tech/godbc/database/sql"
 
+	"github.com/360EntSecGroup-Skylar/excelize"
 	"github.com/google/uuid"
 	"github.com/onlysumitg/qsql2/internal/database"
 )
@@ -35,6 +37,83 @@ type QueryResult struct {
 	Columns      []database.ColumnType
 	FlashMessage string
 	ErrorMessage string
+}
+
+func (qResult *QueryResult) ToExcel() string {
+
+	xlsx := excelize.NewFile()
+	// xlsx.DeleteSheet("Sheet1")
+	// xlsx.NewSheet(qResult.Heading)
+
+	currentRow := 0
+
+	currentRow, currentColumn := getNextExcelRow(currentRow)
+
+	for _, col := range qResult.Columns {
+		xlsx.SetCellValue("Sheet1", fmt.Sprintf("%s%d", currentColumn, currentRow), col.Name)
+		currentColumn = getNextExcelColumn(currentColumn)
+
+	}
+
+	for _, row := range qResult.Rows {
+		currentRow, currentColumn = getNextExcelRow(currentRow)
+		for _, col := range qResult.Columns {
+			val := row[col.IndexName]
+			xlsx.SetCellValue("Sheet1", fmt.Sprintf("%s%d", currentColumn, currentRow), val)
+			currentColumn = getNextExcelColumn(currentColumn)
+
+		}
+
+	}
+
+	downloadName := time.Now().UTC().Format("data-20060102150405.xlsx")
+
+	fileName := fmt.Sprintf("./downloads/%s", downloadName)
+	err := xlsx.SaveAs(fileName)
+	if err != nil {
+		fmt.Println("error wiritinf excwel <<<< >>>>>>>", err)
+	}
+	return downloadName
+
+}
+func getNextExcelRow(currentRow int) (int, string) {
+
+	return currentRow + 1, "A"
+
+}
+
+func getNextExcelColumn(currentColumn string) string {
+	carryOver := 1
+	var newString string
+
+	for _, c := range reverse(currentColumn) {
+
+		next := int(c) + carryOver
+
+		if next > 90 {
+			carryOver = 1
+			next = 65
+		} else {
+			carryOver = 0
+		}
+
+		newString = newString + fmt.Sprintf("%c", next)
+	}
+
+	if carryOver > 0 {
+		newString = "A" + newString
+	}
+
+	fmt.Println(" >>>>>>>>>>>>.. Exec col", reverse(newString))
+	return reverse(newString)
+
+}
+
+func reverse(str string) (result string) {
+	for _, v := range str {
+		result = string(v) + result
+	}
+	return
 }
 
 // func prepareSelectStatement(runningSQL *RunningSql, server Server) {
@@ -82,15 +161,19 @@ func PrepareSQLToRun(runningSQL *RunningSql) {
 		runningSQL.StatementType = "UPDATE"
 		runningSQL.RunningNow = runningSQL.Sql
 
-	case strings.HasPrefix(finalSQL, "DELETE"):
+	case strings.HasPrefix(finalSQL, "DELETE") || strings.HasPrefix(finalSQL, "TURNCATE"):
 		runningSQL.StatementType = "DELETE"
+		runningSQL.RunningNow = runningSQL.Sql
+
+	case strings.HasPrefix(finalSQL, "CREATE"):
+		runningSQL.StatementType = "CREATE"
 		runningSQL.RunningNow = runningSQL.Sql
 
 	case strings.HasPrefix(finalSQL, "CALL"):
 		runningSQL.StatementType = "CALL"
 		runningSQL.RunningNow = runningSQL.Sql
 
-	case strings.HasPrefix(finalSQL, "SELECT") || strings.HasPrefix(finalSQL, "WITH"):
+	case strings.HasPrefix(finalSQL, "SELECT") || strings.HasPrefix(finalSQL, "WITH") || strings.HasPrefix(finalSQL, "VALUES"):
 		runningSQL.StatementType = "SELECT"
 		//prepareSelectStatement(runningSQL, server)
 		runningSQL.RunningNow = runningSQL.Sql
@@ -118,19 +201,31 @@ func PrepareSQLToRun(runningSQL *RunningSql) {
 		runningSQL.LimitRecods = false
 		runningSQL.Sql = runningSQL.RunningNow // 2nd time it will work for actual sql type
 
-	default:
-		if strings.HasPrefix(finalSQL, "@") {
-			for key, value := range QueryMap {
-				if strings.EqualFold(key, finalSQL) {
-					runningSQL.Sql = value
-					break
-				}
+	case strings.HasPrefix(finalSQL, "@DOWNLOAD"):
+		re := regexp.MustCompile(`(?i)@DOWNLOAD`)
+		runningSQL.StatementType = "@DOWNLOAD"
+		runningSQL.RunningNow = re.ReplaceAllString(runningSQL.Sql, "")
+		runningSQL.ResultSetSize = 5000
+		runningSQL.LimitRecods = false
+		runningSQL.Sql = runningSQL.RunningNow // 2nd time it will work for actual sql type
+
+	case strings.HasPrefix(finalSQL, "@"):
+		runningSQL.StatementType = "OTHER"
+		runningSQL.RunningNow = runningSQL.Sql
+
+		for key, value := range QueryMap {
+			if strings.EqualFold(key, finalSQL) {
+				runningSQL.Sql = value
+				runningSQL.RunningNow = runningSQL.Sql
+				PrepareSQLToRun(runningSQL)
+				break
 			}
 		}
 
+	default:
+
 		runningSQL.StatementType = "OTHER"
 		runningSQL.RunningNow = runningSQL.Sql
-		PrepareSQLToRun(runningSQL)
 
 	}
 

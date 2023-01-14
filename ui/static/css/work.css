@@ -1,6 +1,6 @@
 .maxheight72{
-    max-height: calc(100vh - 72px);
-    height: calc(100vh - 72px);
+    max-height: calc(100vh - 52px);
+    height: calc(100vh - 52px);
     overflow:hidden;
 }
 
@@ -168,3 +168,8 @@ div.horizontal {
 body {
     line-height: 1 !important;
 }
+
+.btn {
+    text-align: left;
+}
+

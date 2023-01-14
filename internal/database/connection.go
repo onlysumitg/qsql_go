@@ -22,6 +22,8 @@ type ColumnType struct {
 	DatabaseType string
 	Precision    int64
 	Scale        int64
+
+	IsLink bool
 }
 
 type DBServer interface {

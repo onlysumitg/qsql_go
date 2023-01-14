@@ -17,8 +17,10 @@ require (
 )
 
 require (
+	github.com/360EntSecGroup-Skylar/excelize v1.4.1 // indirect
 	github.com/go-chi/cors v1.2.1 // indirect
 	github.com/go-playground/form v3.1.4+incompatible // indirect
+	github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826 // indirect
 	golang.org/x/sys v0.3.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

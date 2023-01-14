@@ -81,7 +81,14 @@
               <tr    @contextmenu="showSingleRow($event,sqlresult,row_index)" v-for='(row, row_index)  in sqlresult.Rows'>
                 <td nowrap>[[row_index + 1]]</td>
                 <td nowrap v-for='(column, col_index)  in sqlresult.Columns' class="  ">
-                  [[row[column.IndexName] ]]</td>
+                  <span v-if="column.IsLink">
+                    <a :href="row[column.IndexName]">[[row[column.IndexName] ]]</a>
+
+                  </span>
+                  <span v-else> [[row[column.IndexName] ]]</span>
+                 
+                
+                </td>
               </tr>
             </tbody>
           </table>

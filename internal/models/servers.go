@@ -107,18 +107,18 @@ func (s *Server) RunQuery(runningSQL *RunningSql) (queryResults []*QueryResult) 
 		queryResults = s.RunExecuteQuery(runningSQL)
 	case "DELETE":
 		queryResults = s.RunExecuteQuery(runningSQL)
-
+	case "CREATE":
+		queryResults = s.RunExecuteQuery(runningSQL)
 	case "COMMIT":
 		queryResults = s.RunExecuteQuery(runningSQL)
-
 	case "ROLLBACK":
 		queryResults = s.RunExecuteQuery(runningSQL)
-
 	case "CALL":
 		queryResults = s.CallSP(runningSQL)
 	case "@BATCH":
 		queryResults = s.BatchStatement(runningSQL)
-
+	case "@DOWNLOAD":
+		queryResults = s.DownloadData(runningSQL)
 	default:
 		queryResults = s.RunSelectQuery(runningSQL)
 	}
@@ -126,6 +126,39 @@ func (s *Server) RunQuery(runningSQL *RunningSql) (queryResults []*QueryResult) 
 	for _, queryResult := range queryResults {
 		queryResult.CurrentSql = *runningSQL
 	}
+	return
+}
+
+// ------------------------------------------------------------
+//
+// ------------------------------------------------------------
+func (s Server) DownloadData(runningSQL *RunningSql) (queryResults []*QueryResult) {
+	return_rows := make([]map[string]interface{}, 0)
+
+	column_types := make([]database.ColumnType, 0)
+
+	column_type := database.ColumnType{
+		IndexName: "Download_Link",
+		Name:      "Download_Link",
+		IsLink:    true,
+	}
+	column_types = append(column_types, column_type)
+	row := make(map[string]interface{})
+
+	queryResultsTemp := s.RunSelectQuery(runningSQL)
+
+	fileName := queryResultsTemp[0].ToExcel()
+
+	row["Download_Link"] = fmt.Sprintf("/downloadexcel/%s", fileName)
+	return_rows = append(return_rows, row)
+	queryResult := &QueryResult{CurrentSql: *runningSQL,
+		Rows: return_rows, Columns: column_types,
+		Heading:      "Result",
+		FlashMessage: "",
+	}
+
+	queryResults = append(queryResults, queryResult)
+
 	return
 }
 
@@ -267,7 +300,7 @@ func (s *Server) RunExecuteQuery(runningSQL *RunningSql) (queryResults []*QueryR
 	// return_rows, column_types = database.ToMap(rows_to_process, 10, runningSQL.ScrollTo)
 	column_type := database.ColumnType{
 		IndexName: "Rows Impacted",
-		Name: "Rows Impacted",
+		Name:      "Rows Impacted",
 	}
 
 	row := make(map[string]interface{})
