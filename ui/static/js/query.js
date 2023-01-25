@@ -5,7 +5,7 @@
 
      data() {
          return {
-             contentA: sessionStorage.getItem("adhoc_sql") || "",
+             contentA: sessionStorage.getItem("adhoc_sql") || "-- Cntl+E: Execute current line or Selected text\n ---------------- \n",
              contentB: "",//sessionStorage.getItem("contentbsaved") || "",
 
              contentR: "",
