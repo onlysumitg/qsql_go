@@ -42,17 +42,18 @@
           [[sqlresult.CurrentSql.Sql]]
         </div>
 
-        <p><small>>Right click on a Row to view single row data.</small></p>
 
         <!-- error message-->
 
         <div v-if="(sqlresult.ErrorMessage).length !==0" class="alert alert-danger" role="alert">
           [[sqlresult.ErrorMessage]]
         </div>
-
+        
         <!-- result table-->
-
+        
         <div   id="resulttable3" class="" v-else>
+          <p><small>>Right click on a Row to view single row data.</small></p> 
+
           <table   class="table table-hover table-bordered" style="position: relative;">
             <thead class="thead-light">
               <tr style="background-color: #d6e9c6;">
