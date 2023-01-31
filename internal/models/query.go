@@ -26,6 +26,7 @@ type RunningSql struct {
 	ResultSetSize int
 	LimitRecods   bool
 	Heading       string
+	Error         string
 }
 
 var runningSQLQueryMap map[string]*sql.Rows = make(map[string]*sql.Rows, 10)
@@ -213,11 +214,18 @@ func PrepareSQLToRun(runningSQL *RunningSql) {
 		runningSQL.StatementType = "OTHER"
 		runningSQL.RunningNow = runningSQL.Sql
 
+		s := strings.ReplaceAll(runningSQL.Sql, "  ", " ")
+		aliasAndParams := strings.Split(s, " ")
+
+		aliasAndParams[0] = strings.ToUpper(aliasAndParams[0])
+
 		for key, value := range QueryMap {
-			if strings.EqualFold(key, finalSQL) {
-				runningSQL.Sql = value
+			if strings.EqualFold(key, aliasAndParams[0]) {
+				builtSQL, fieldErrors := buildQueryAliasWithParamters(value, aliasAndParams[1:])
+				runningSQL.Sql = builtSQL
 				runningSQL.RunningNow = runningSQL.Sql
 				PrepareSQLToRun(runningSQL)
+				runningSQL.Error = fieldErrors
 				break
 			}
 		}

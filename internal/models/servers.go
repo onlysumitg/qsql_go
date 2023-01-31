@@ -100,6 +100,13 @@ func (s Server) GetSinglaConnection() (*sql.DB, error) {
 // ------------------------------------------------------------
 func (s *Server) RunQuery(runningSQL *RunningSql) (queryResults []*QueryResult) {
 
+	if runningSQL.Error != "" {
+		return_rows := make([]map[string]interface{}, 0)
+		column_types := make([]database.ColumnType, 0)
+		queryResults = append(queryResults, &QueryResult{CurrentSql: *runningSQL, Rows: return_rows, Columns: column_types, Heading: "Error", ErrorMessage: runningSQL.Error})
+		return queryResults
+	}
+
 	switch runningSQL.StatementType {
 	case "INSERT":
 		queryResults = s.RunExecuteQuery(runningSQL)

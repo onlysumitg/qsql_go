@@ -118,7 +118,7 @@ func (app *application) ShorthandQueryAddPost(w http.ResponseWriter, r *http.Req
 	}
 	app.sessionManager.Put(r.Context(), "flash", fmt.Sprintf("Query %s saved sucessfully", shorthandQuery.Name))
 
-	go models.LoadQueryMap(app.shorthandQueries)
+	go models.LoadQueryMap(app.shorthandQueries, app.savedQueries)
 
 	http.Redirect(w, r, fmt.Sprintf("/queryalias/%s", id), http.StatusSeeOther)
 }
@@ -166,7 +166,7 @@ func (app *application) ShorthandQueryDeleteConfirm(w http.ResponseWriter, r *ht
 		return
 	}
 	app.sessionManager.Put(r.Context(), "flash", "Query deleted sucessfully")
-	go models.LoadQueryMap(app.shorthandQueries)
+	go models.LoadQueryMap(app.shorthandQueries, app.savedQueries)
 
 	http.Redirect(w, r, "/queryalias", http.StatusSeeOther)
 

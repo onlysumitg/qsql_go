@@ -42,9 +42,17 @@ func (s *SavedQuery) PopulateFields() {
 // -----------------------------------------------------------------
 func (s *SavedQuery) ReplaceFields(values map[string]string) (string, map[string]string) {
 
+	return ReplaceQueryFields(s.Sql, values)
+}
+
+// -----------------------------------------------------------------
+//
+// -----------------------------------------------------------------
+func ReplaceQueryFields(sqlString string, values map[string]string) (string, map[string]string) {
+
 	fieldErrors := make(map[string]string)
-	fields := findQueryFields(s.Sql)
-	sql := s.Sql
+	fields := findQueryFields(sqlString)
+	sql := sqlString
 	log.Println("sql1>>>>>", sql, fields)
 
 	for _, field := range fields {
@@ -52,6 +60,8 @@ func (s *SavedQuery) ReplaceFields(values map[string]string) (string, map[string
 		if found {
 			sql = strings.ReplaceAll(sql, field.ID, fieldValue)
 			log.Println("sql>>>>>", sql)
+		} else if field.DefaultValue != "" {
+			sql = strings.ReplaceAll(sql, field.ID, field.DefaultValue)
 		} else {
 			fieldErrors[field.Name] = "Field value is required"
 		}
@@ -160,6 +170,8 @@ func (m *SavedQueryModel) Save(u *SavedQuery) (string, error) {
 
 		return bucket.Put([]byte(key), buf)
 	})
+
+	go AutoGenerateForSavedQueries(m)
 
 	return id, err
 }

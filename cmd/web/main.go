@@ -44,7 +44,7 @@ func main() {
 	//--------------------------------------- Setup websockets ----------------------------
 	go ListenToWsChannel()
 
-	go models.LoadQueryMap(app.shorthandQueries)
+	go models.LoadQueryMap(app.shorthandQueries, app.savedQueries)
 
 	fmt.Printf("\nStarting servers at port %s \n", params.getHttpAddress())
 

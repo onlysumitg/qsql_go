@@ -96,7 +96,18 @@ Help
         </td>
       </tr>
 
+      <tr>
+        <td>Saved query</td>
+        <td>Auto generated Query alias</td>
+        <td>
+          <ol>
+            <li> If saved query does not contain a semi-colon(";"), System will generate a query alias automatically. </li>
+            <li> Query Alias will be  @Catagory_name</li>
+           
 
+          </ol>
+        </td>
+      </tr>
       <tr>
         <td>Batch query</td>
         <td>Submit a long running query in batch</td>
@@ -204,16 +215,66 @@ Help
 
 
       <tr>
-        <td>Shorthand queries</td>
-        <td>Shorthand </td>
+        <td>Query Alias</td>
+        <td>Alias </td>
         <td>
           <ol>
-            <li></li>
-
+            <li>To create short hand alias for frequently used queries.</li>
+            <li> Go to <a href="/queryalias"> manage query alias</a>.</li>
 
           </ol>
         </td>
       </tr>
+
+      <tr>
+        <td>Query Alias</td>
+        <td>Create Alias </td>
+        <td>
+          <ol>
+            <li>To create short hand alias for frequently used queries.</li>
+            <li> Go to <a href="/queryalias">manage query alias</a>. Click on "+Add" button</li>
+            <li> Enter alias and query.</li>
+            <li>Alias must start with @ and cannot contain spaces</li>
+            <li>Click "Save" button</li>
+            <li>Go to <a href="/query">run query</a>. Type @alias and hit Crtl+E</li>
+
+          </ol>
+        </td>
+      </tr>
+
+      <tr>
+        <td>Query Alias</td>
+        <td>Create Alias with Parameters</td>
+        <td>
+          <ol>
+            <li>Create a new alias (as defined in last step)</li>
+
+            <li>Use a query with paramters.
+              <ol><li>
+                Example <code> select * from qsys2/systables where table_schema = '<strong>{{"{{"}}schema{{"}}"}}</strong>'</code></li>
+              </ol>
+
+            </li>
+
+            <li>Use a query with paramters with default value.
+              <ol><li>
+                Example <code> select * from qsys2/systables where TABLE_TYPE = '<strong>{{"{{"}}table_type:P{{"}}"}}</strong>'</code></li>
+
+              <li>Parameters with default values must be at the right side of the query.</li>
+              <li>Every parameter after the first "Parameters with default value" must has default value</li>
+
+              </ol>
+
+            </li>
+            <li>To run alias with paramters, Go to <a href="/query">run query</a>. Use the format <strong>@alias param1 param2 param3</strong></li>
+            <ol><li>
+              space sapareted parameter list.
+            </li>
+          </ol>
+          </ol>
+        </td>
+      </tr>
+
     </tbody>
   </table>
 
