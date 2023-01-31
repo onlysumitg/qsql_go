@@ -76,6 +76,8 @@ func AutoGenerateForSavedQueries(savedQueries *SavedQueryModel) {
 
 	for _, savedQuery := range savedQueries.List() {
 		key := fmt.Sprintf("@%s_%s", savedQuery.Category, savedQuery.Name)
+		key = strings.TrimSpace(key)
+		key = strings.ReplaceAll(key, " ", "_")
 		value := savedQuery.Sql
 
 		// skip multiple queries
