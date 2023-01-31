@@ -63,7 +63,9 @@ Query Alias
   
     $(document).ready( function () {
       $('#aliaslist').DataTable(
-        {
+        {      
+              order: [[2, 'desc'], [0, 'asc']],
+              orderMulti: true,
               "language": {
                 "emptyTable": "No results found"
               }

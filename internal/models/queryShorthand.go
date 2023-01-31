@@ -127,6 +127,7 @@ func (m *ShorthandQueryModel) Save(u *ShorthandQuery) (string, error) {
 
 		return bucket.Put([]byte(key), buf)
 	})
+	 
 
 	return id, err
 }

@@ -14,6 +14,8 @@ import (
 	"github.com/360EntSecGroup-Skylar/excelize"
 	"github.com/google/uuid"
 	"github.com/onlysumitg/qsql2/internal/database"
+
+	"github.com/onlysumitg/qsql2/utils/stringutils"
 )
 
 type RunningSql struct {
@@ -214,7 +216,9 @@ func PrepareSQLToRun(runningSQL *RunningSql) {
 		runningSQL.StatementType = "OTHER"
 		runningSQL.RunningNow = runningSQL.Sql
 
-		s := strings.ReplaceAll(runningSQL.Sql, "  ", " ")
+		// s := strings.ReplaceAll(runningSQL.Sql, "  ", " ")
+		s := stringutils.RemoveMultipleSpaces(runningSQL.Sql)
+
 		aliasAndParams := strings.Split(s, " ")
 
 		aliasAndParams[0] = strings.ToUpper(aliasAndParams[0])

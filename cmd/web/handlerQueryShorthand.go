@@ -116,6 +116,8 @@ func (app *application) ShorthandQueryAddPost(w http.ResponseWriter, r *http.Req
 		app.serverError(w, r, err)
 		return
 	}
+
+	go models.ReloadQueryMap(app.shorthandQueries)
 	app.sessionManager.Put(r.Context(), "flash", fmt.Sprintf("Query %s saved sucessfully", shorthandQuery.Name))
 
 	go models.LoadQueryMap(app.shorthandQueries, app.savedQueries)
