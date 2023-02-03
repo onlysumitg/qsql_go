@@ -16,6 +16,7 @@ import (
 // ------------------------------------------------------
 func (app *application) CurrentServerMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
 		currentServerID := app.sessionManager.GetString(r.Context(), "currentserver")
 		server, err2 := app.servers.Get(currentServerID)
 
@@ -120,6 +121,8 @@ func (app *application) RunQueryPostAsync(w http.ResponseWriter, r *http.Request
 
 	log.Println("RunQueryPostAsync>>>>> >>>>>>")
 
+	sessionID := app.sessionManager.Token(r.Context())
+
 	currentServerID := app.sessionManager.GetString(r.Context(), "currentserver")
 	currentServer, err := app.servers.Get(currentServerID)
 	if err != nil {
@@ -141,7 +144,9 @@ func (app *application) RunQueryPostAsync(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	queryResults := models.ProcessSQLStatements(request.SQLToRun, currentServer)
+	currentTabId, lastTabid := getTabIds(r)
+
+	queryResults := models.ProcessSQLStatements(request.SQLToRun, currentServer, sessionID, currentTabId, lastTabid)
 
 	for _, queryResult := range queryResults {
 

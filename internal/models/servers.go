@@ -325,7 +325,7 @@ func (s *Server) RunExecuteQuery(runningSQL *RunningSql) (queryResults []*QueryR
 // ------------------------------------------------------------
 //
 // ------------------------------------------------------------
-func (s *Server) UpdateAfterError(odbcError *godbc.Error) {
+func (s *Server) UpdateAfterError(odbcError *godbc.Error) (retry bool) {
 
 	if strings.EqualFold(odbcError.APIName, "SQLDriverConnect") {
 		for _, diag := range odbcError.Diag {
@@ -333,13 +333,19 @@ func (s *Server) UpdateAfterError(odbcError *godbc.Error) {
 			case 8001:
 				s.OnHold = true
 				s.OnHoldMessage = "User name does not exist."
+
 			case 8002:
 				s.OnHold = true
 				s.OnHoldMessage = "Incorrect password"
+
+			case 30189: // connection login timeout HYT000
+
+				retry = true
 			}
 		}
 	}
 
+	return
 }
 
 // ------------------------------------------------------------
@@ -356,7 +362,8 @@ func (s *Server) RunSelectQuery(runningSQL *RunningSql) (queryResults []*QueryRe
 		return
 	}
 
-	rows_to_process, ok := runningSQLQueryMap[runningSQL.ID]
+	openQuery, ok := runningSQLQueryMap[runningSQL.ID]
+	rows_to_process := openQuery.Query
 
 	if !ok {
 		conn, err_connection := s.GetConnection()
@@ -369,10 +376,12 @@ func (s *Server) RunSelectQuery(runningSQL *RunningSql) (queryResults []*QueryRe
 		if err_query != nil {
 			var odbcError *godbc.Error
 
+			  /// need to make sure connection is good to use
+
 			log.Printf(" connetion errror 2>>>>>>>>>>>>%t", err_query)
 			if errors.As(err_query, &odbcError) {
 
-				s.UpdateAfterError(odbcError)
+				// retry := s.UpdateAfterError(odbcError)
 			}
 
 			queryResults = append(queryResults, &QueryResult{Rows: return_rows, Columns: column_types, Heading: "Query Error", ErrorMessage: err_query.Error()})
@@ -388,16 +397,27 @@ func (s *Server) RunSelectQuery(runningSQL *RunningSql) (queryResults []*QueryRe
 	recordsProcessed := len(return_rows)
 	if recordsProcessed >= runningSQL.ResultSetSize {
 		runningSQL.LoadMore = true
-		runningSQLQueryMap[runningSQL.ID] = rows_to_process
+		runningSQLQueryMap[runningSQL.ID] = OpenQuery{Query: rows_to_process, SessionID: runningSQL.SessionID}
 	}
 
 	if runningSQL.LoadMore && len(return_rows) < runningSQL.ResultSetSize {
+
+		query, found := runningSQLQueryMap[runningSQL.ID]
+		if found {
+			query.Query.Close()
+		}
+
 		delete(runningSQLQueryMap, runningSQL.ID)
 		defer rows_to_process.Close()
 		runningSQL.LoadMore = false
 	}
 
 	if !runningSQL.LimitRecods {
+		query, found := runningSQLQueryMap[runningSQL.ID]
+		if found {
+			query.Query.Close()
+		}
+
 		delete(runningSQLQueryMap, runningSQL.ID)
 		defer rows_to_process.Close()
 		runningSQL.LoadMore = false

@@ -29,10 +29,42 @@ type RunningSql struct {
 	LimitRecods   bool
 	Heading       string
 	Error         string
+	SessionID     string
 }
 
-var runningSQLQueryMap map[string]*sql.Rows = make(map[string]*sql.Rows, 10)
+type OpenQuery struct {
+	Query     *sql.Rows
+	SessionID string
+}
 
+// var runningSQLQueryMap map[string]*sql.Rows = make(map[string]*sql.Rows, 10)
+var runningSQLQueryMap map[string]OpenQuery = make(map[string]OpenQuery, 10)
+
+// --------------------------------------------------------------
+//
+// -----------------------------------------------------------------
+func CloseOpenQueries(sessionID string) {
+	log.Println("CloseOpenQueries  .....", sessionID)
+
+	keysToDelete := make([]string, 0)
+
+	for key, openQuery := range runningSQLQueryMap {
+		if strings.EqualFold(openQuery.SessionID, sessionID) {
+			keysToDelete = append(keysToDelete, key)
+			openQuery.Query.Close()
+		}
+	}
+
+	for _, key := range keysToDelete {
+		log.Println("Closing opened query.....", key)
+		delete(runningSQLQueryMap, key)
+	}
+
+}
+
+// --------------------------------------------------------------
+//
+// -----------------------------------------------------------------
 type QueryResult struct {
 	Heading      string
 	CurrentSql   RunningSql
@@ -42,6 +74,9 @@ type QueryResult struct {
 	ErrorMessage string
 }
 
+// --------------------------------------------------------------
+//
+// -----------------------------------------------------------------
 func (qResult *QueryResult) ToExcel() string {
 
 	xlsx := excelize.NewFile()
@@ -79,11 +114,19 @@ func (qResult *QueryResult) ToExcel() string {
 	return downloadName
 
 }
+
+// --------------------------------------------------------------
+//
+// -----------------------------------------------------------------
 func getNextExcelRow(currentRow int) (int, string) {
 
 	return currentRow + 1, "A"
 
 }
+
+//--------------------------------------------------------------
+//
+//-----------------------------------------------------------------
 
 func getNextExcelColumn(currentColumn string) string {
 	carryOver := 1
@@ -111,6 +154,10 @@ func getNextExcelColumn(currentColumn string) string {
 	return reverse(newString)
 
 }
+
+//--------------------------------------------------------------
+//
+//-----------------------------------------------------------------
 
 func reverse(str string) (result string) {
 	for _, v := range str {
@@ -264,8 +311,14 @@ func ActuallyRunSQL2(server *Server, runningSQL RunningSql) []*QueryResult {
 // ------------------------------------------------------
 //
 // ------------------------------------------------------
-func ProcessSQLStatements(sqlStatements string, server *Server) []QueryResult {
-	sqlsToProcess := PrepareSQLStatements(sqlStatements, *server)
+func ProcessSQLStatements(sqlStatements string, server *Server, sessionId, currentTabid, lastTabId string) []QueryResult {
+
+	// this function get exected only for new sqls
+	// so close the old open queries for current tab id
+	currentSessionId := fmt.Sprintf("%s_%s", sessionId, currentTabid)
+	go CloseOpenQueries(currentSessionId)
+
+	sqlsToProcess := PrepareSQLStatements(sqlStatements, *server, currentSessionId)
 
 	var queryResults []QueryResult
 	if len(sqlsToProcess) > 1 {
@@ -332,7 +385,7 @@ func runMultpleSQLs(sqlsToProcess []RunningSql, currentServer *Server) []QueryRe
 // ------------------------------------------------------
 //
 // ------------------------------------------------------
-func PrepareSQLStatements(sqlStatements string, server Server) []RunningSql {
+func PrepareSQLStatements(sqlStatements string, server Server, sessionId string) []RunningSql {
 
 	var responseLines []RunningSql = make([]RunningSql, 0)
 	sqlStatements = strings.Replace(sqlStatements, "\n", " ", -1)
@@ -350,7 +403,7 @@ func PrepareSQLStatements(sqlStatements string, server Server) []RunningSql {
 			sql = strings.Trim(sql, " ")
 			if sql != "" {
 				// generate new running sql
-				currentSql := &RunningSql{}
+				currentSql := &RunningSql{SessionID: sessionId}
 				currentSql.ID = uuid.NewString()
 				currentSql.Sql = sql
 				PrepareSQLToRun(currentSql)

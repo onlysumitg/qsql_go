@@ -42,7 +42,17 @@ func GetConnection(server DBServer) (*sql.DB, error) {
 	connectionID := server.GetConnectionID()
 	db, found := connectionMap[connectionID]
 	if found && db != nil {
-		return db, nil
+
+		err := db.Ping()
+
+		// error occured in ping
+		if err != nil {
+			db.Close()
+			delete(connectionMap, connectionID)
+		} else {
+			return db, nil
+		}
+
 	}
 
 	//fmt.Println((" ========================== BUILDING NEW CONNECTION ===================================="))

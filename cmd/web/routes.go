@@ -49,6 +49,8 @@ func addMiddleWares(app *application, router *chi.Mux) {
 
 	// CSRF
 	router.Use(noSurf)
+
+	router.Use(app.ClearOldTabId)
 }
 
 // -----------------------------------------------------------------

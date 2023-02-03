@@ -81,6 +81,45 @@ func (app *application) writeJSON(w http.ResponseWriter, status int, data interf
 // -----------------------------------------------------------------
 //
 // -----------------------------------------------------------------
+func getTabIds(r *http.Request) (string, string) {
+	oldTabId := ""
+	cookielast, err := r.Cookie("lasttabid")
+	if err != nil {
+		// switch {
+		// case errors.Is(err, http.ErrNoCookie):
+		// 	http.Error(w, "cookie not found", http.StatusBadRequest)
+		// default:
+		// 	log.Println(err)
+		// 	http.Error(w, "server error", http.StatusInternalServerError)
+		// }
+		//return
+	} else {
+		oldTabId = cookielast.Value
+		//fmt.Println("last TABDiD >>>>>>>>>>>>>>>>..", oldTabId)
+	}
+
+	currentTabId := ""
+	cookie, err := r.Cookie("tabid")
+	if err != nil {
+		// switch {
+		// case errors.Is(err, http.ErrNoCookie):
+		// 	http.Error(w, "cookie not found", http.StatusBadRequest)
+		// default:
+		// 	log.Println(err)
+		// 	http.Error(w, "server error", http.StatusInternalServerError)
+		// }
+		//return
+	} else {
+		currentTabId = cookie.Value
+		//fmt.Println("TABDiD >>>>>>>>>>>>>>>>..", currentTabId)
+	}
+
+	return currentTabId, oldTabId
+}
+
+// -----------------------------------------------------------------
+//
+// -----------------------------------------------------------------
 func (app *application) goBack(w http.ResponseWriter, r *http.Request, status int) {
 
 	//log.Println("r.Header.Get(Referer) >>>>>>>>>", r.Header.Get("Referer"))

@@ -153,7 +153,15 @@ func (app *application) SavedQueryRunAsJson(w http.ResponseWriter, r *http.Reque
 		// run the sql
 	}
 
-	queryResults := models.ProcessSQLStatements(sqlToRun, currentServer)
+
+	  
+
+
+	sessionID := app.sessionManager.Token(r.Context())
+
+	currentTabId,lastTabid := getTabIds(r)
+
+	queryResults := models.ProcessSQLStatements(sqlToRun, currentServer, sessionID, currentTabId,lastTabid)
 	app.writeJSON(w, http.StatusOK, queryResults, nil)
 
 }
