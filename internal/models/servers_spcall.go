@@ -1,6 +1,7 @@
 package models
 
 import (
+	"database/sql"
 	"encoding/csv"
 	"errors"
 	"fmt"
@@ -8,10 +9,9 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/alexbrainman/odbc"
 	"github.com/google/uuid"
 	"github.com/onlysumitg/qsql2/internal/database"
-	"github.com/zerobit-tech/godbc"
-	"github.com/zerobit-tech/godbc/database/sql"
 )
 
 type SPParamter struct {
@@ -43,12 +43,11 @@ func (p *SPParamter) getDefaultValue() string {
 func (s *Server) CallSP(runningSQL *RunningSql) (queryResults []*QueryResult) {
 	notvalidErr := s.IsValid(runningSQL)
 	if notvalidErr != nil {
-		queryResults = append(queryResults, &QueryResult{  Heading: "Onhold", ErrorMessage: notvalidErr.Error()})
+		queryResults = append(queryResults, &QueryResult{Heading: "Onhold", ErrorMessage: notvalidErr.Error()})
 
 		return
 	}
 
-	
 	callID := strings.ReplaceAll(uuid.NewString(), "-", "")
 
 	var re = regexp.MustCompile(`(?m)call\s*(.*)(\(.*\))`)
@@ -109,7 +108,7 @@ func (s *Server) CallSP(runningSQL *RunningSql) (queryResults []*QueryResult) {
 		if spParamter.CreateStatement != "" {
 			_, err := db.Exec(spParamter.CreateStatement)
 			if err != nil {
-				var odbcError *godbc.Error
+				var odbcError *odbc.Error
 
 				if errors.As(err, &odbcError) {
 					s.UpdateAfterError(odbcError)
@@ -123,7 +122,7 @@ func (s *Server) CallSP(runningSQL *RunningSql) (queryResults []*QueryResult) {
 		// call sp
 		_, err = db.Exec(callStatement) //"select * from sumitg1/qsqltest")'
 		if err != nil {
-			var odbcError *godbc.Error
+			var odbcError *odbc.Error
 
 			if errors.As(err, &odbcError) {
 				s.UpdateAfterError(odbcError)
@@ -135,7 +134,7 @@ func (s *Server) CallSP(runningSQL *RunningSql) (queryResults []*QueryResult) {
 	} else {
 		rows, err := db.Query(callStatement)
 		if err != nil {
-			var odbcError *godbc.Error
+			var odbcError *odbc.Error
 
 			if errors.As(err, &odbcError) {
 				s.UpdateAfterError(odbcError)
@@ -173,7 +172,7 @@ func (s *Server) CallSP(runningSQL *RunningSql) (queryResults []*QueryResult) {
 		sql := fmt.Sprintf("select %s  from sysibm/SYSDUMMY1", strings.Join(globalVariableNames, ","))
 		rows, err_query := db.Query(sql)
 		if err_query != nil {
-			var odbcError *godbc.Error
+			var odbcError *odbc.Error
 
 			if errors.As(err, &odbcError) {
 				s.UpdateAfterError(odbcError)
@@ -191,7 +190,7 @@ func (s *Server) CallSP(runningSQL *RunningSql) (queryResults []*QueryResult) {
 			conn, _ := s.GetConnection()
 			_, err := conn.Exec(spParamter.DropStatement)
 			if err != nil {
-				var odbcError *godbc.Error
+				var odbcError *odbc.Error
 
 				if errors.As(err, &odbcError) {
 					s.UpdateAfterError(odbcError)
@@ -296,7 +295,7 @@ func (s Server) GetSPParameter(spName, spLib string) (params []*SPParamter, err 
 
 	rows, err := conn.Query(sql)
 	if err != nil {
-		var odbcError *godbc.Error
+		var odbcError *odbc.Error
 
 		if errors.As(err, &odbcError) {
 			s.UpdateAfterError(odbcError)

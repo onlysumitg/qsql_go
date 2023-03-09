@@ -1,6 +1,7 @@
 package models
 
 import (
+	"database/sql"
 	"encoding/csv"
 	"fmt"
 	"log"
@@ -8,8 +9,6 @@ import (
 	"strings"
 	"sync"
 	"time"
-
-	"github.com/zerobit-tech/godbc/database/sql"
 
 	"github.com/360EntSecGroup-Skylar/excelize"
 	"github.com/google/uuid"

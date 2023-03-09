@@ -1,12 +1,11 @@
 package database
 
 import (
+	"database/sql"
 	"log"
 	"strings"
 
-	"github.com/zerobit-tech/godbc/database/sql"
-
-	_ "github.com/zerobit-tech/godbc"
+	_ "github.com/alexbrainman/odbc"
 )
 
 type ColumnType struct {

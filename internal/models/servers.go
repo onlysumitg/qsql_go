@@ -1,6 +1,7 @@
 package models
 
 import (
+	"database/sql"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -9,12 +10,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/zerobit-tech/godbc"
-	"github.com/zerobit-tech/godbc/database/sql"
-
+	"github.com/alexbrainman/odbc"
 	"github.com/google/uuid"
 	"github.com/onlysumitg/qsql2/internal/database"
 	"github.com/onlysumitg/qsql2/internal/validator"
+
 	bolt "go.etcd.io/bbolt"
 )
 
@@ -288,7 +288,7 @@ func (s *Server) RunExecuteQuery(runningSQL *RunningSql) (queryResults []*QueryR
 
 	res, err_query := conn.Exec(runningSQL.RunningNow) //"select * from sumitg1/qsqltest")
 	if err_query != nil {
-		var odbcError *godbc.Error
+		var odbcError *odbc.Error
 
 		if errors.As(err_query, &odbcError) {
 			s.UpdateAfterError(odbcError)
@@ -325,7 +325,7 @@ func (s *Server) RunExecuteQuery(runningSQL *RunningSql) (queryResults []*QueryR
 // ------------------------------------------------------------
 //
 // ------------------------------------------------------------
-func (s *Server) UpdateAfterError(odbcError *godbc.Error) (retry bool) {
+func (s *Server) UpdateAfterError(odbcError *odbc.Error) (retry bool) {
 
 	if strings.EqualFold(odbcError.APIName, "SQLDriverConnect") {
 		for _, diag := range odbcError.Diag {
@@ -374,9 +374,9 @@ func (s *Server) RunSelectQuery(runningSQL *RunningSql) (queryResults []*QueryRe
 		}
 		rows, err_query := conn.Query(runningSQL.RunningNow) //"select * from sumitg1/qsqltest")
 		if err_query != nil {
-			var odbcError *godbc.Error
+			var odbcError *odbc.Error
 
-			  /// need to make sure connection is good to use
+			/// need to make sure connection is good to use
 
 			log.Printf(" connetion errror 2>>>>>>>>>>>>%t", err_query)
 			if errors.As(err_query, &odbcError) {

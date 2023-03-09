@@ -1,11 +1,10 @@
 package database
 
 import (
+	"database/sql"
 	"fmt"
 	"log"
 	"sync"
-
-	"github.com/zerobit-tech/godbc/database/sql"
 )
 
 // -----------------------------------------------------------------
@@ -169,7 +168,7 @@ func ToMap2(rows *sql.Rows, maxRows int, scrollTo int) (return_rows []map[string
 
 	rowCount := 0
 
-	fmt.Println("ToMap2 rows.JumpToRow2(3)", rows.JumpToRow2(scrollTo))
+	//fmt.Println("ToMap2 rows.JumpToRow2(3)", rows.JumpToRow2(scrollTo))
 
 	for rows.Next() {
 		//rows.JumpToRow(3)
