@@ -50,12 +50,16 @@ type Server struct {
 //
 // ------------------------------------------------------------
 func (s Server) GetConnectionString() string {
-	driver := "IBM i Access ODBC Driver"
-	ssl := 0
-	if s.Ssl {
-		ssl = 1
-	}
-	connectionString := fmt.Sprintf("DRIVER=%s;SYSTEM=%s; UID=%s;PWD=%s;DBQ=*USRLIBL;UNICODESQL=1;XDYNAMIC=1;EXTCOLINFO=1;PKG=A/DJANGO,2,0,0,1,512;PROTOCOL=TCPIP;NAM=1;CMT=0;SSL=%d;ALLOWUNSCHAR=1", driver, s.IP, s.UserName, s.Password, ssl)
+	driver := "iSeries Access ODBC Driver" //"IBM i Access ODBC Driver"
+	// ssl := 0
+	// if s.Ssl {
+	// 	ssl = 1
+	// }
+	//connectionString := "DRIVER=iSeries Access ODBC Driver;UNICODESQL=1;XDYNAMIC=1;PKG=A/DJANGO,2,0,0,1,512;SYSTEM=192.168.171.7;PORT=;PROTOCOL=TCPIP;UID=sgoyal;PWD=sv7p0wer#2;NAM=1;CMT=0;DBQ=,KWDB108,sgoyal,*USRLIBL"
+
+	connectionString := fmt.Sprintf("DRIVER=%s;SYSTEM=%s;UID=%s;PWD=%s;DBQ=,*USRLIBL;UNICODESQL=1;XDYNAMIC=1;EXTCOLINFO=1;PKG=A/DJANGO,2,0,0,1,512;PROTOCOL=TCPIP;NAM=1;CMT=0;ALLOWUNSCHAR=1", driver, s.IP, s.UserName, s.Password)
+
+ 
 	return connectionString
 }
 
