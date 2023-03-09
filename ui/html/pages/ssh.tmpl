@@ -1,0 +1,75 @@
+{{define "title"}}
+Run SQL
+{{end}}
+
+{{define "content"}}
+<div class="split" id="sqlrunner">
+
+  {{template "query_single_row" .}}
+  {{template "query_single_col" .}}
+
+
+
+  <!-- quert start-->
+
+  <div id="leftone" class=""  >
+
+
+    <div class="maxheight72">
+      
+ 
+
+
+    </div>
+   </div>
+  <!-- quert end-->
+
+
+  <!-- RESULT start-->
+
+
+
+
+  <div id="rightone"   style="overflow:hidden;">
+    <div class="maxheight72">
+ 
+  </div>
+ 
+     </div>
+
+  <!-- RESULT end-->
+
+</div>
+
+
+
+
+
+
+
+<script>
+ var csrftoken = '{{.CSRFToken}}'
+ var splitmode = 2
+ var savesQueries= {}
+
+</script>
+
+
+{{end}}
+
+{{define "aftercontent"}}
+
+<script src="https://cdn.jsdelivr.net/npm/vue@2.6.12" type="text/javascript"></script>
+<script src="https://ajaxorg.github.io/ace-builds/src-min-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
+
+<script src="https://unpkg.com/axios/dist/axios.min.js" type="text/javascript"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js" type="text/javascript" crossorigin="anonymous"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/split.js/1.6.0/split.min.js" type="text/javascript"></script>
+<script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
+<script src="/static/js/textformat.js" type="text/javascript"></script>
+<script src="/static/js/editoracevue.js" type="text/javascript"></script>
+<script src="/static/js/query.js" type="text/javascript"></script>
+<script src="/static/js/autoload.js" type="text/javascript"></script>
+
+{{end}}

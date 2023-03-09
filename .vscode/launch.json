@@ -19,6 +19,20 @@
         "env": {},
         "showLog": true,
      
-        }
+        },
+
+        {
+            "name": "Debug CLI  go",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            
+            "program": "${workspaceRoot}/cmd/cli/",
+            
+      
+            "env": {},
+            "showLog": true,
+         
+            }
         ]
 }
