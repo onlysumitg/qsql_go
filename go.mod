@@ -1,10 +1,9 @@
 module github.com/onlysumitg/qsql2
 
-go 1.19
+go 1.20
 
 require (
 	github.com/360EntSecGroup-Skylar/excelize v1.4.1
-	github.com/alexbrainman/odbc v0.0.0-20211220213544-9c9a2e61c5e2
 	github.com/alexedwards/scs/boltstore v0.0.0-20221206171621-0f0849773278
 	github.com/alexedwards/scs/v2 v2.5.0
 	github.com/go-chi/chi/v5 v5.0.8
@@ -15,6 +14,7 @@ require (
 	github.com/gorilla/websocket v1.5.0
 	github.com/justinas/nosurf v1.1.1
 	github.com/sirupsen/logrus v1.9.0
+	github.com/zerobit-tech/godbc v0.0.34
 	go.etcd.io/bbolt v1.3.6
 	golang.org/x/crypto v0.4.0
 )

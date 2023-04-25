@@ -9,9 +9,9 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/alexbrainman/odbc"
 	"github.com/google/uuid"
 	"github.com/onlysumitg/qsql2/internal/database"
+	"github.com/zerobit-tech/godbc"
 )
 
 type SPParamter struct {
@@ -108,7 +108,7 @@ func (s *Server) CallSP(runningSQL *RunningSql) (queryResults []*QueryResult) {
 		if spParamter.CreateStatement != "" {
 			_, err := db.Exec(spParamter.CreateStatement)
 			if err != nil {
-				var odbcError *odbc.Error
+				var odbcError *godbc.Error
 
 				if errors.As(err, &odbcError) {
 					s.UpdateAfterError(odbcError)
@@ -122,7 +122,7 @@ func (s *Server) CallSP(runningSQL *RunningSql) (queryResults []*QueryResult) {
 		// call sp
 		_, err = db.Exec(callStatement) //"select * from sumitg1/qsqltest")'
 		if err != nil {
-			var odbcError *odbc.Error
+			var odbcError *godbc.Error
 
 			if errors.As(err, &odbcError) {
 				s.UpdateAfterError(odbcError)
@@ -134,7 +134,7 @@ func (s *Server) CallSP(runningSQL *RunningSql) (queryResults []*QueryResult) {
 	} else {
 		rows, err := db.Query(callStatement)
 		if err != nil {
-			var odbcError *odbc.Error
+			var odbcError *godbc.Error
 
 			if errors.As(err, &odbcError) {
 				s.UpdateAfterError(odbcError)
@@ -172,7 +172,7 @@ func (s *Server) CallSP(runningSQL *RunningSql) (queryResults []*QueryResult) {
 		sql := fmt.Sprintf("select %s  from sysibm/SYSDUMMY1", strings.Join(globalVariableNames, ","))
 		rows, err_query := db.Query(sql)
 		if err_query != nil {
-			var odbcError *odbc.Error
+			var odbcError *godbc.Error
 
 			if errors.As(err, &odbcError) {
 				s.UpdateAfterError(odbcError)
@@ -190,7 +190,7 @@ func (s *Server) CallSP(runningSQL *RunningSql) (queryResults []*QueryResult) {
 			conn, _ := s.GetConnection()
 			_, err := conn.Exec(spParamter.DropStatement)
 			if err != nil {
-				var odbcError *odbc.Error
+				var odbcError *godbc.Error
 
 				if errors.As(err, &odbcError) {
 					s.UpdateAfterError(odbcError)
@@ -295,7 +295,7 @@ func (s Server) GetSPParameter(spName, spLib string) (params []*SPParamter, err 
 
 	rows, err := conn.Query(sql)
 	if err != nil {
-		var odbcError *odbc.Error
+		var odbcError *godbc.Error
 
 		if errors.As(err, &odbcError) {
 			s.UpdateAfterError(odbcError)
