@@ -5,7 +5,7 @@ import (
 	"log"
 	"strings"
 
-	_ "github.com/alexbrainman/odbc"
+	_ "github.com/zerobit-tech/godbc"
 )
 
 type ColumnType struct {

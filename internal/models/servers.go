@@ -1,6 +1,7 @@
 package models
 
 import (
+	"context"
 	"database/sql"
 	"encoding/json"
 	"errors"
@@ -10,10 +11,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/alexbrainman/odbc"
 	"github.com/google/uuid"
 	"github.com/onlysumitg/qsql2/internal/database"
 	"github.com/onlysumitg/qsql2/internal/validator"
+	"github.com/zerobit-tech/godbc"
 
 	bolt "go.etcd.io/bbolt"
 )
@@ -55,7 +56,9 @@ func (s Server) GetConnectionString() string {
 	if s.Ssl {
 		ssl = 1
 	}
-	connectionString := fmt.Sprintf("DRIVER=%s;SYSTEM=%s; UID=%s;PWD=%s;DBQ=*USRLIBL;UNICODESQL=1;XDYNAMIC=1;EXTCOLINFO=1;PKG=A/DJANGO,2,0,0,1,512;PROTOCOL=TCPIP;NAM=1;CMT=0;SSL=%d;ALLOWUNSCHAR=1", driver, s.IP, s.UserName, s.Password, ssl)
+	//connectionString := fmt.Sprintf("DRIVER=%s;SYSTEM=%s; UID=%s;PWD=%s;DBQ=*USRLIBL;UNICODESQL=1;XDYNAMIC=1;EXTCOLINFO=1;PKG=A/DJANGO,2,0,0,1,512;PROTOCOL=TCPIP;NAM=1;CMT=0;SSL=%d;ALLOWUNSCHAR=1", driver, s.IP, s.UserName, s.Password, ssl)
+	connectionString := fmt.Sprintf("DRIVER=%s;SYSTEM=%s; UID=%s;PWD=%s;DBQ=*USRLIBL;UNICODESQL=1;XDYNAMIC=1;EXTCOLINFO=0;PKG=A/DJANGO,2,0,0,1,512;PROTOCOL=TCPIP;NAM=1;CMT=0;SSL=%d;ALLOWUNSCHAR=1", driver, s.IP, s.UserName, s.Password, ssl)
+
 	return connectionString
 }
 
@@ -288,7 +291,7 @@ func (s *Server) RunExecuteQuery(runningSQL *RunningSql) (queryResults []*QueryR
 
 	res, err_query := conn.Exec(runningSQL.RunningNow) //"select * from sumitg1/qsqltest")
 	if err_query != nil {
-		var odbcError *odbc.Error
+		var odbcError *godbc.Error
 
 		if errors.As(err_query, &odbcError) {
 			s.UpdateAfterError(odbcError)
@@ -325,7 +328,7 @@ func (s *Server) RunExecuteQuery(runningSQL *RunningSql) (queryResults []*QueryR
 // ------------------------------------------------------------
 //
 // ------------------------------------------------------------
-func (s *Server) UpdateAfterError(odbcError *odbc.Error) (retry bool) {
+func (s *Server) UpdateAfterError(odbcError *godbc.Error) (retry bool) {
 
 	if strings.EqualFold(odbcError.APIName, "SQLDriverConnect") {
 		for _, diag := range odbcError.Diag {
@@ -372,9 +375,12 @@ func (s *Server) RunSelectQuery(runningSQL *RunningSql) (queryResults []*QueryRe
 			queryResults = append(queryResults, &QueryResult{Rows: return_rows, Columns: column_types, Heading: "Connection Error", ErrorMessage: err_connection.Error()})
 			return
 		}
-		rows, err_query := conn.Query(runningSQL.RunningNow) //"select * from sumitg1/qsqltest")
+
+		ctx := context.Background()
+		ctx = context.WithValue(ctx, godbc.LABEL_IN_COL_NAME, true)
+		rows, err_query := conn.QueryContext(ctx, runningSQL.RunningNow) //conn.Query(runningSQL.RunningNow) //"select * from sumitg1/qsqltest")
 		if err_query != nil {
-			var odbcError *odbc.Error
+			var odbcError *godbc.Error
 
 			/// need to make sure connection is good to use
 
