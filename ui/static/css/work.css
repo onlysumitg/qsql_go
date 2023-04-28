@@ -1,6 +1,6 @@
 .maxheight72{
-    max-height: calc(100vh - 52px);
-    height: calc(100vh - 52px);
+    max-height: calc(100vh - 212px);
+    height: calc(100vh - 212px);
     overflow:hidden;
 }
 
@@ -13,8 +13,8 @@
 
  
 .maxheightRemaining{
-    max-height: calc(100vh - 122px);
-    height: calc(100vh - 122px);
+    max-height: calc(100vh - 162px);
+    height: calc(100vh - 162px);
     overflow: scroll;
 }
 

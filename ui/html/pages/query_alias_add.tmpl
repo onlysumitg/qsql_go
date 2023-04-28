@@ -15,18 +15,22 @@ Run SQL
   <div id="leftone" class=""  >
 
 
-    <div class="maxheight72">
+ 
 
-
+    <div class="row p-2">
+      <div class="col">
+        <div class="card ">
+          <div class="card-header">
 
 
       {{template "query_alias_form" .}}
-
+    </div>
+    <div class="card-body"> 
       <editor name="sql" editor-id="editorB" :key="id"  :content="contentB" v-on:change-content="changeContentB" v-on:run-sql="runSQL">
       </editor>
 
-
-    </div>
+    </div>  </div>  </div>  </div>
+ 
   </div>
   <!-- quert end-->
 
@@ -36,9 +40,18 @@ Run SQL
 
 
 
-  <div id="rightone" class=" maxheight72" style="overflow:hidden;">
+  <div id="rightone"   style="overflow:hidden;">
+    <div class="row p-2">
+      <div class="col">
+        <div class="card ">
+       
+          <div class="card-body"> 
+
+    <div class=" ">
     {{template "query_result" .}}
-     </div>
+  </div>
+ 
+     </div> </div> </div> </div> </div>
 
   <!-- RESULT end-->
 

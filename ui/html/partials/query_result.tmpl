@@ -9,7 +9,7 @@
   </div>
 
 
-  <div class="row maxheight50" style="overflow:hidden; max-width:100%; padding-left: 25px;">
+  <div class="row  " style="overflow:hidden; max-width:100%; padding-left: 25px;">
 
 
     
@@ -54,8 +54,8 @@
         <div   id="resulttable3" class="" v-else>
           <p><small>>Right click on a Row to view single row data.</small></p> 
 
-          <table   class="table table-hover table-bordered" style="position: relative;">
-            <thead class="thead-light">
+          <table   class="table   table-borderless table-responsive-sm table-striped " style="position: relative;">
+            <thead class="thead-dark">
               <tr style="background-color: #d6e9c6;">
                 <th nowrap class="my-sticky-top">#</th>
                 <th nowrap v-for='(column, col_index)  in sqlresult.Columns' class="my-sticky-top">

@@ -3,19 +3,19 @@ Servers
 {{end}}
 
 {{define "content"}}
-<br />
-<div class="px-5">
- <div class="row">
- <div class="col" style="padding-bottom: 10px;"><p class="h3">Servers <a class="btn btn-primary" href="/servers/add">+Add</a></p>
-</div>
-
  
+<div class="row p-2">
+  <div class="col">
+    <div class="card ">
+      <div class="card-header">
+        <p class="h5">Servers 
+          <a data-toggle="tooltip" data-placement="bottom" title="Add new server"
+           class="btn btn-ghost-info float-right" href="/servers/add">+Add</a></p>
+      </div>
+      <div class="card-body">
 
-</div>
-
-
-    <table id="serverslist" class="table table-bordered table-striped">
-      <thead>
+    <table id="serverslist"   class="table   table-borderless table-responsive-sm table-striped    ">
+      <thead class="thead-dark">
         <tr>
             <th>Name</th>
             <th><span>On Hold?</span></th>
@@ -70,12 +70,18 @@ Servers
 
         </tr>
         {{end}}
+        {{end}}
           </tbody>
         </table>
-    {{end}}
 
+
+      </div>
+    </div>
   </div>
-    {{end}}
+</div>
+   
+  
+  {{end}}
 
 
 {{define "aftercontent"}}

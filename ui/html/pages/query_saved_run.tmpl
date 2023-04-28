@@ -12,48 +12,56 @@ Run SQL
 
   <!-- quert start-->
 
-  <div id="leftone" class=""  >
-  
+  <div id="leftone" class=" "  >
+    <div class="row p-2">
+      <div class="col">
+        <div class="card ">
+          <div class="card-header">
+            <form id="dontsubmitform" action="@" method="">
+
+              <div class="form-group">
+                  <label for="searchcategoty">Category</label>
+                  <select  v-model="searchCatagory"  id="searchcategoty" class="form-control   mb-3" aria-label="Default select example">          
+                    <option value="*ALL">All</option>
+                    <option v-for="(queries,propertyName) in savesQueries" :value="propertyName">[[propertyName]]</option>
+                    
+                  </select>
+              </div>
+              
+              <div class="form-group">
+                  <input  v-model="searchText" class="form-control" id="saechquery" placeholder="search"></input>
+              </div>
+          </form>
+          </div>
+          <div class="card-body"> 
     <div class="maxheight72 p-1" style="overflow:auto">
    
-      <form id="dontsubmitform" action="@" method="">
+    
+    
+            <div >
+                    <div :key="propertyName" v-for="(queries,propertyName) in filteredQueryList" class="">
+                      <ul v-if="queries.length>0" class="">
+                        <li>[[propertyName]]
 
-          <div class="form-group">
-              <label for="searchcategoty">Category</label>
-              <select  v-model="searchCatagory"  id="searchcategoty" class="form-control   mb-3" aria-label="Default select example">          
-                <option value="*ALL">All</option>
-                 <option v-for="(queries,propertyName) in savesQueries" :value="propertyName">[[propertyName]]</option>
-                
-              </select>
-          </div>
-          
-          <div class="form-group">
-              <input  v-model="searchText" class="form-control" id="saechquery" placeholder="search"></input>
-          </div>
-      </form>
-<hr />
-
-<div >
-         <div :key="propertyName" v-for="(queries,propertyName) in filteredQueryList" class="">
-          <ul v-if="queries.length>0" class="">
-            <li>[[propertyName]]
-
-          <div :id="propertyName">
-            <div class="">
-              <ul >
-                <li :key="query" v-for="(query,index) in queries" @click="showForm(query)" class=""><button class="btn btn-link">[[query.name]]</button></li>
-              </ul>
-             
-            </div>
-          </div>
-        </li>
-        </ul>
-             
-        </div>
-       
-      </div>
+                      <div :id="propertyName">
+                        <div class="">
+                          <ul >
+                            <li :key="query" v-for="(query,index) in queries" @click="showForm(query)" class=""><button class="btn btn-link">[[query.name]]</button></li>
+                          </ul>
+                        
+                        </div>
+                      </div>
+                    </li>
+                    </ul>
+                        
+                    </div>
+                  
+                  </div>
 
     </div>
+
+  </div> </div> </div> </div>
+
   </div>
   <!-- quert end-->
 
@@ -63,13 +71,17 @@ Run SQL
 
 
 
-  <div id="midone" class=" maxheight72  px-3">
- 
+  <div id="midone" class=" maxheight72 ">
+    <div class="row p-2" v-if="currentQuery">
+      <div class="col">
+        <div class="card ">
+          <div class="card-header">
+            [[currentQuery.category]] | [[currentQuery.name]]
+          </div>
+          <div class="card-body"> 
+
    <div v-if="Object.keys(currentQuery).length > 0">
-    <br />
-    [[currentQuery.category]] | [[currentQuery.name]]
-    <br />
-    <hr />
+    
     <form  @submit="buildSQL" method="POST">
         <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
         <input type="hidden" name="savedqueryid" :value="[[currentQuery.id]]">
@@ -90,16 +102,23 @@ Run SQL
     <hr />
      <code>[[currentQuery.sql]]</code>
     </div>
+  </div> </div> </div> </div>
   </div>
 
 
-  <div id="rightone" class=" maxheight72" style="overflow:hidden;">
+  <div id="rightone"   style="overflow:hidden;">
+    <div class="row p-2">
+      <div class="col">
+        <div class="card ">
+       
+          <div class="card-body"> 
 
-
-
+    <div class=" ">
     {{template "query_result" .}}
-     </div>
-
+  </div>
+ 
+     </div> </div> </div> </div> 
+    </div>
   <!-- RESULT end-->
 
 </div>

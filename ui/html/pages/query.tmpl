@@ -14,15 +14,23 @@ Run SQL
 
   <div id="leftone" class=""  >
 
-
-    <div class="maxheight72">
+    <div class="row p-2">
+      <div class="col">
+        <div class="card ">
+          <div class="card-header">
+            <p class="h6">Cntl+E: Execute current line or Selected text
+            </p>
+          </div>
+          <div class="card-body"> 
+  
+    <div class="">
 
       <editor editor-id="editorA" :key="id"  :content="contentA" v-on:change-content="changeContentA" v-on:run-sql="runSQL">
       </editor>
 
 
     </div>
-   </div>
+   </div>  </div>  </div>  </div>  </div>
   <!-- quert end-->
 
 
@@ -32,11 +40,17 @@ Run SQL
 
 
   <div id="rightone"   style="overflow:hidden;">
-    <div class="maxheight72">
+    <div class="row p-2">
+      <div class="col">
+        <div class="card ">
+       
+          <div class="card-body"> 
+
+    <div class=" ">
     {{template "query_result" .}}
   </div>
  
-     </div>
+     </div> </div> </div> </div> </div>
 
   <!-- RESULT end-->
 

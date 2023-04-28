@@ -3,51 +3,58 @@ Saved Sqls
 {{end}}
 
 {{define "content"}}
-<br />
-<div class="px-5">
-
-<div class="row">
  
 
 
-  <div class="col" style="padding-bottom: 10px;"><p class="h3">Saved Queries <a class="btn btn-primary" href="/savesql/add">+Add</a></p>
-    <small class="text-muted">To save the query with {{"{{"}}parameter{{"}}"}} or {{"{{"}}paramter:defaultValue{{"}}"}}. To run a saved query go to <a href="savesql/run">Run</a> </small>
-</div>
+
+  <div class="row p-2">
+    <div class="col">
+      <div class="card ">
+        <div class="card-header">
+          <p class="h5">Saved Queries 
+            <a data-toggle="tooltip" data-placement="bottom" title="Add new saved query"
+             class="btn btn-ghost-info float-right" href="/savesql/add">+Add</a></p>
+             <small class="text-muted">To save the query with {{"{{"}}parameter{{"}}"}} or
+              {{"{{"}}paramter:defaultValue{{"}}"}}. To run a saved query go to <a href="savesql/run">Run</a> </small>
+        </div>
+        <div class="card-body">
+  <table id="savedqlist" class="table   table-borderless table-responsive-sm table-striped    ">
+    <thead class="thead-dark">
+      <tr>
+        <th>Category</th>
+        <th>Name</th>
+        <th>SQL</th>
+        <th>Options</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{if .SavesQueries}}
+      {{range .SavesQueries}}
+      <tr>
+        <td>{{.Category}}</td>
+        <td>{{.Name}}</td>
+        <td>{{.Sql}}</td>
+        <td nowrap>
+
+          <a class="btn btn-info" href='/savesql/update/{{.ID}}'>Edit</a>
+          <a class="btn btn-danger" href='/savesql/delete/{{.ID}}'>Delete</a>
+
+        </td>
+
+      </tr>
+      {{end}}
+
+      {{else}}
+      {{end}}
+    </tbody>
+  </table>
+
 
 </div>
 
-<table id="savedqlist" class="table table-bordered table-striped">
-  <thead>
-    <tr>
-      <th>Category</th>
-      <th>Name</th>
-      <th>SQL</th>
-      <th>Options</th>
-    </tr>
-  </thead>
-  <tbody>
-    {{if .SavesQueries}}
-    {{range .SavesQueries}}
-    <tr>
-      <td>{{.Category}}</td>
-      <td>{{.Name}}</td>
-      <td>{{.Sql}}</td>
-      <td nowrap>
- 
-        <a class="btn btn-info" href='/savesql/update/{{.ID}}'>Edit</a>
-        <a class="btn btn-danger" href='/savesql/delete/{{.ID}}'>Delete</a>
-
-      </td>
-
-    </tr>
-    {{end}}
-
-    {{else}}
-     {{end}}
-  </tbody>
-</table>
 </div>
-
+</div>
+</div>
 
 {{end}}
 
@@ -58,15 +65,12 @@ Saved Sqls
 <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.13.1/js/jquery.dataTables.js"></script>
 
 <script>
-  
-    $(document).ready( function () {
-      $('#savedqlist').DataTable(
-        {
-              "language": {
-                "emptyTable": "No results found"
-              }
-          }
-      );
-  } );
+  $(document).ready(function () {
+    $('#savedqlist').DataTable({
+      "language": {
+        "emptyTable": "No results found"
+      }
+    });
+  });
 </script>
 {{end}}

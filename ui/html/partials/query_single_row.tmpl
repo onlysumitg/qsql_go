@@ -7,50 +7,49 @@ aria-labelledby="myModalLabel2">
 
     <div class="modal-dialog"  >
       <div class="modal-content">
-
-        <div class="modal-header">
-          <div class="row" style="width:100%">
-            <div class="col-10">
-              <button class="btn btn-primary" type="button" @click="previous_row()">
-                < Previous</button> <strong># [[singleRowIndex+1]] </strong>
-                  <button class="btn btn-primary" type="button" @click="next_row()"> Next ></button>
-
-            </div>
-            <div class="col-2">
-              <button class="btn btn-danger" type="button" @click="showSinglRow = false">X</button>
-
-            </div>
-          </div>
-        </div>
-
-        <div class="modal-body">
-          <p><small>>Right click on a Row to view single column's formated data.</small></p>
-
-          <table class="table table-hover table-bordered">
-
-            <tbody>
-              <tr  @contextmenu="showSingleColumn($event,col,singleRow[col.IndexName])"  v-for='(col, col_index)  in singleRowColumns'  >
-                <th nowrap>
-                  <p class="font-weight-bold">[[col.Name]]</p>
-                  <p class="text-sm-left">
-                    [[col.DatabaseType]] [
-                    <span v-if="col.HasPrecisionScale">
-                      [[col.Precision]],[[col.Scale]]
-                    </span>
-                    <span v-else>
-                      [[col.Length]]
-                    </span>]
-                  </p>
-                </th>
-
-                <td class="">
-                  [[singleRow[col.IndexName] ]]</td>
-              </tr>
-            </tbody>
+ 
 
 
-          </table>
-        </div>
+
+        <div class="row p-2">
+          <div class="col">
+            <div class="card ">
+              <div class="card-header">
+                <button class="btn btn-ghost-primary" type="button" @click="previous_row()">
+                  < Previous</button> 
+                  <strong># [[singleRowIndex+1]] </strong>
+                    <button class="btn btn-ghost-primary" type="button" @click="next_row()"> Next ></button>
+                    <button class="btn btn-ghost-danger float-right" type="button" @click="showSinglRow = false">X</button>
+
+                    <p><small>>Right click on a Row to view single column's formated data.</small></p>
+              </div>
+              <div class="card-body"> 
+                <table class="table table-hover table-bordered">
+
+                  <tbody>
+                    <tr  @contextmenu="showSingleColumn($event,col,singleRow[col.IndexName])"  v-for='(col, col_index)  in singleRowColumns'  >
+                      <th nowrap>
+                        <p class="font-weight-bold">[[col.Name]]</p>
+                        <p class="text-sm-left">
+                          [[col.DatabaseType]] [
+                          <span v-if="col.HasPrecisionScale">
+                            [[col.Precision]],[[col.Scale]]
+                          </span>
+                          <span v-else>
+                            [[col.Length]]
+                          </span>]
+                        </p>
+                      </th>
+      
+                      <td class="">
+                        [[singleRow[col.IndexName] ]]</td>
+                    </tr>
+                  </tbody>
+      
+      
+                </table>
+              </div></div></div></div>
+
 
       </div><!-- modal-content -->
     </div><!-- modal-dialog -->

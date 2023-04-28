@@ -8,35 +8,38 @@ aria-labelledby="myModalLabel2">
     <div class="modal-dialog" role="document">
       <div class="modal-content">
 
-        <div class="modal-header">
-          <div class="row" style="width:100%">
-            <div class="col-10">
+   
+
+
+
+        <div class="row p-2">
+          <div class="col">
+            <div class="card ">
+              <div class="card-header">
                 <strong class="font-weight-bold">[[ singleColumnData.Name ]]  || 
                  
-                    [[singleColumnData.DatabaseType]] [
-                    <span v-if="singleColumnData.HasPrecisionScale">
-                      [[singleColumnData.Precision]],[[singleColumnData.Scale]]
-                    </span>
-                    <span v-else>
-                      [[singleColumnData.Length]]
-                    </span>]
-                  
-                </strong>
-            </div>
-            <div class="col-2">
-              <button class="btn btn-danger" type="button" @click="showSinglColumn = false" >X</button>
+                  [[singleColumnData.DatabaseType]] [
+                  <span v-if="singleColumnData.HasPrecisionScale">
+                    [[singleColumnData.Precision]],[[singleColumnData.Scale]]
+                  </span>
+                  <span v-else>
+                    [[singleColumnData.Length]]
+                  </span>]
+                
+              </strong>
+                <button class="btn btn-ghost-danger float-right" type="button" @click="showSinglColumn = false" >X</button>
+              </div>
+              <div class="card-body"> 
+                <editor class="prettyprint" :lang="singleColumnMode" editor-id="editorR"   :content="contentR" :setreadonly="true" >
 
+              </div>
             </div>
           </div>
         </div>
-
-        <div class="modal-body">
-            <editor class="prettyprint" :lang="singleColumnMode" editor-id="editorR"   :content="contentR" :setreadonly="true" >
-        </editor>
-
+        
       
       
-        </div>
+      
 
       </div><!-- modal-content -->
     </div><!-- modal-dialog -->

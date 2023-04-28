@@ -10,13 +10,20 @@ Batch Query Result
 
 
   <!-- quert start-->
-
   <div id="leftone" class=""  >
+  <div class="row p-2">
+    <div class="col">
+      <div class="card ">
+        <div class="card-header">
+          <p class="h5">Query Details 
+          </p>
+        </div>
+        <div class="card-body"> 
 
 
-    <div class="maxheight72">
+    <div class="maxheight72X">
 
-      <h3>Query Details</h3>
+ 
       <table id="serverslist" class="table table-bordered table-striped">
         <tbody>
           <tr>
@@ -60,6 +67,7 @@ Batch Query Result
 
     </div>
   </div>
+</div> </div> </div> </div>
   <!-- quert end-->
 
 
@@ -68,10 +76,16 @@ Batch Query Result
 
 
 
-  <div id="rightone" class=" maxheight72" style="overflow:hidden;">
+  <div id="rightone"  style="overflow:hidden;">
+    <div class="row p-2">
+      <div class="col">
+        <div class="card ">
+       
+          <div class="card-body"> 
+
     {{template "query_result" .}}
      </div>
-
+  </div>  </div>  </div>  </div>
   <!-- RESULT end-->
 
 </div>

@@ -3,22 +3,20 @@ Query Alias
 {{end}}
 
 {{define "content"}}
-<br />
-<div class="px-5">
 
-<div class="row">
- 
+<div class="row p-2">
+  <div class="col">
+    <div class="card ">
+      <div class="card-header">
+        <p class="h5">Query Alias 
+          <a data-toggle="tooltip" data-placement="bottom" title="Add new server"
+           class="btn btn-ghost-info float-right" href="/queryalias/add">+Add</a></p>
+           <small class="text-muted">Manage short alias for the your queries. Alias is a single word and must start with @ </small>
+      </div>
+      <div class="card-body">
 
-
-  <div class="col" style="padding-bottom: 10px;"><p class="h3">Query Alias <a class="btn btn-primary" href="/queryalias/add">+Add</a></p>
-    <small class="text-muted">Manage short alias for the your queries. Alias is a single word and must start with @ </small>
-
-</div>
-
-</div>
-
-<table id="aliaslist" class="table table-bordered table-striped">
-  <thead>
+<table id="aliaslist"  class="table   table-borderless table-responsive-sm table-striped    ">
+  <thead class="thead-dark">
     <tr>
        <th>Alias</th>
       <th>Query</th>
@@ -50,7 +48,7 @@ Query Alias
 </table>
 </div>
 
-
+</div></div></div>
 {{end}}
 
 
